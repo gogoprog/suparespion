@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <meta name="theme-color" content="#14121f">
 <title>Supar Espion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Yellowtail&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #14121f;
@@ -32,6 +35,15 @@
   h2 { font-size: 1.2rem; margin: 20px 0 10px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
   .subtitle { text-align: center; color: var(--muted); margin: 0 0 12px; }
   .screen { display: none; flex-direction: column; flex: 1; }
+
+  /* Page d'accueil */
+  #s-home { justify-content: center; align-items: center; text-align: center; cursor: pointer; gap: 28px; }
+  #s-home svg { width: 100%; max-width: 420px; height: auto; overflow: visible; animation: drop .7s cubic-bezier(.2,1.4,.4,1) both; }
+  .logo-script { font-family: "Yellowtail", "Brush Script MT", cursive; }
+  .tap { color: var(--muted); font-size: 1.1rem; letter-spacing: 2px; text-transform: uppercase; animation: pulse 1.6s ease-in-out infinite; }
+  .home-tagline { color: var(--text); font-size: 1.05rem; margin: 0; opacity: .85; }
+  @keyframes drop { from { transform: translateY(-30px) scale(.9); opacity: 0; } to { transform: none; opacity: 1; } }
+  @keyframes pulse { 0%, 100% { opacity: .35; } 50% { opacity: 1; } }
   .screen.active { display: flex; }
   .card { background: var(--card); border-radius: var(--radius); padding: 16px; }
   button {
@@ -106,7 +118,21 @@
 <div id="app">
 
   <!-- ACCUEIL / CONFIG -->
-  <section id="s-setup" class="screen active">
+  <!-- ACCUEIL -->
+  <section id="s-home" class="screen active">
+    <svg viewBox="0 0 420 240" role="img" aria-label="Supar Espion">
+      <g transform="rotate(-8 210 130)">
+        <text x="190" y="62" text-anchor="middle" class="logo-script" font-size="84"
+              fill="var(--text)" stroke="var(--card2)" stroke-width="12" paint-order="stroke" stroke-linejoin="round">Supar</text>
+        <text x="215" y="190" text-anchor="middle" class="logo-script" font-size="132"
+              fill="var(--accent)" stroke="var(--card2)" stroke-width="14" paint-order="stroke" stroke-linejoin="round">Espion</text>
+      </g>
+    </svg>
+    <p class="home-tagline">Tout le monde a le même mot… sauf l'espion.</p>
+    <div class="tap">Touche l'écran pour jouer</div>
+  </section>
+
+  <section id="s-setup" class="screen">
     <h1>🕵️ Supar <span>Espion</span></h1>
     <p class="subtitle">Tout le monde a le même mot… sauf l'espion.</p>
 
@@ -843,6 +869,7 @@ function endGame(winner) {
 $("replay").onclick = startGame;
 $("back-setup").onclick = () => { renderSetup(); show("s-setup"); };
 $("start-btn").onclick = startGame;
+$("s-home").onclick = () => show("s-setup");
 
 load();
 renderSetup();
