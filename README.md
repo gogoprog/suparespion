@@ -25,6 +25,7 @@ Pour jouer sur smartphone, héberger le fichier n'importe où (GitHub Pages, ser
   - *Rien* : l'espion sait qu'il est espion. S'il est démasqué, il peut encore gagner en devinant le mot des civils.
   - *Mot proche* : l'espion reçoit un mot voisin (ex. Pizza / Tarte flambée) et ne sait pas qu'il est l'espion.
 - **Catégories** : 13 catégories activables, environ 100 paires de mots chacune (≈ 1 350 paires au total).
+- **Langue** : français ou anglais, au choix sur la page d'accueil. Chaque langue a son propre dictionnaire.
 
 ## Scores
 
@@ -33,4 +34,4 @@ Pour jouer sur smartphone, héberger le fichier n'importe où (GitHub Pages, ser
 
 ## Ajouter des mots
 
-Le dictionnaire est l'objet `DICT` en haut du script dans `index.html` : chaque catégorie est une liste de paires `["mot des civils", "mot proche"]`. Les paires sont tirées dans les deux sens.
+Les dictionnaires sont les objets `DICT_FR` et `DICT_EN` en haut du script dans `index.html` : chaque catégorie est une liste de paires `["mot des civils", "mot proche"]`. Les paires sont tirées dans les deux sens.

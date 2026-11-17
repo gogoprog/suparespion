@@ -42,6 +42,11 @@
   .logo-script { font-family: "Yellowtail", "Brush Script MT", cursive; }
   .tap { color: var(--muted); font-size: 1.1rem; letter-spacing: 2px; text-transform: uppercase; animation: pulse 1.6s ease-in-out infinite; }
   .home-tagline { color: var(--text); font-size: 1.05rem; margin: 0; opacity: .85; }
+  .langs { display: flex; gap: 12px; }
+  .lang { display: flex; align-items: center; gap: 8px; padding: 10px 14px; font-size: .95rem; font-weight: 600;
+          background: var(--card); color: var(--muted); border: 2px solid transparent; }
+  .lang.on { border-color: var(--accent); color: var(--text); }
+  .lang svg { width: 30px !important; height: 20px; border-radius: 3px; animation: none !important; }
   @keyframes drop { from { transform: translateY(-30px) scale(.9); opacity: 0; } to { transform: none; opacity: 1; } }
   @keyframes pulse { 0%, 100% { opacity: .35; } 50% { opacity: 1; } }
   .screen.active { display: flex; }
@@ -117,7 +122,6 @@
 <body>
 <div id="app">
 
-  <!-- ACCUEIL / CONFIG -->
   <!-- ACCUEIL -->
   <section id="s-home" class="screen active">
     <svg viewBox="0 0 420 240" role="img" aria-label="Supar Espion">
@@ -128,19 +132,39 @@
               fill="var(--accent)" stroke="var(--card2)" stroke-width="14" paint-order="stroke" stroke-linejoin="round">Espion</text>
       </g>
     </svg>
-    <p class="home-tagline">Tout le monde a le même mot… sauf l'espion.</p>
-    <div class="tap">Touche l'écran pour jouer</div>
+    <p class="home-tagline" data-i18n="tagline"></p>
+    <div class="langs">
+      <button class="lang" data-lang="fr">
+        <svg viewBox="0 0 3 2" aria-hidden="true"><rect width="1" height="2" fill="#0055a4"/><rect x="1" width="1" height="2" fill="#fff"/><rect x="2" width="1" height="2" fill="#ef4135"/></svg>
+        Français
+      </button>
+      <button class="lang" data-lang="en">
+        <svg viewBox="0 0 60 30" aria-hidden="true">
+          <clipPath id="uk-c"><path d="M0,0 v30 h60 v-30 z"/></clipPath>
+          <clipPath id="uk-t"><path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z"/></clipPath>
+          <g clip-path="url(#uk-c)">
+            <path d="M0,0 v30 h60 v-30 z" fill="#012169"/>
+            <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6"/>
+            <path d="M0,0 L60,30 M60,0 L0,30" clip-path="url(#uk-t)" stroke="#c8102e" stroke-width="4"/>
+            <path d="M30,0 v30 M0,15 h60" stroke="#fff" stroke-width="10"/>
+            <path d="M30,0 v30 M0,15 h60" stroke="#c8102e" stroke-width="6"/>
+          </g>
+        </svg>
+        English
+      </button>
+    </div>
+    <div class="tap" data-i18n="tap"></div>
   </section>
 
   <section id="s-setup" class="screen">
     <h1>🕵️ Supar <span>Espion</span></h1>
-    <p class="subtitle">Tout le monde a le même mot… sauf l'espion.</p>
+    <p class="subtitle" data-i18n="tagline"></p>
 
-    <h2>Joueurs</h2>
+    <h2 data-i18n="players"></h2>
     <div class="card">
       <form id="add-form" class="row">
-        <input id="name-input" type="text" placeholder="Nom du joueur" maxlength="20" autocomplete="off">
-        <button class="primary" type="submit">Ajouter</button>
+        <input id="name-input" type="text" data-i18n-ph="namePh" maxlength="20" autocomplete="off">
+        <button class="primary" type="submit" data-i18n="add"></button>
       </form>
       <ul id="player-list"></ul>
     </div>
@@ -148,20 +172,20 @@
     <h2>Options</h2>
     <div class="card">
       <div class="opt">
-        <div>Espions<small>Nombre d'espions dans la partie</small></div>
+        <div><span data-i18n="spies"></span><small data-i18n="spiesHelp"></small></div>
         <div class="stepper">
           <button id="spy-minus">−</button><b id="spy-count">1</b><button id="spy-plus">+</button>
         </div>
       </div>
       <div class="opt">
-        <div>L'espion reçoit<small id="mode-help"></small></div>
+        <div><span data-i18n="spyGets"></span><small id="mode-help"></small></div>
         <div class="seg" id="mode-seg">
-          <button data-mode="none">Rien</button>
-          <button data-mode="close">Mot proche</button>
+          <button data-mode="none" data-i18n="modeNone"></button>
+          <button data-mode="close" data-i18n="modeClose"></button>
         </div>
       </div>
       <div class="opt">
-        <div>Chrono discussion</div>
+        <div data-i18n="timerLabel"></div>
         <div class="seg" id="timer-seg">
           <button data-t="0">Off</button>
           <button data-t="180">3 min</button>
@@ -169,14 +193,15 @@
         </div>
       </div>
       <div class="opt" style="display:block">
-        <div style="margin-bottom:10px">Catégories</div>
+        <div style="margin-bottom:10px" data-i18n="categories"></div>
         <div class="chips" id="cat-chips"></div>
       </div>
     </div>
 
     <div class="footer">
-      <button id="start-btn" class="primary big">Lancer la partie</button>
-      <button id="reset-scores" class="link">Remettre les scores à zéro</button>
+      <button id="start-btn" class="primary big" data-i18n="start"></button>
+      <button id="reset-scores" class="link" data-i18n="resetScores"></button>
+      <button id="change-lang" class="link" data-i18n="changeLang"></button>
     </div>
   </section>
 
@@ -184,34 +209,32 @@
   <section id="s-deal" class="screen">
     <div class="progress" id="deal-progress"></div>
     <div class="center">
-      <div class="hint">Passe l'appareil à</div>
+      <div class="hint" data-i18n="passTo"></div>
       <div class="pass-name" id="deal-name"></div>
-      <div class="reveal-box" id="reveal-box">
-        <div class="hint" id="reveal-hint">Appuie pour voir ton mot<br>(sans que les autres regardent !)</div>
-      </div>
+      <div class="reveal-box" id="reveal-box"></div>
     </div>
-    <button id="deal-next" class="primary big" style="visibility:hidden">J'ai retenu, cacher et passer</button>
+    <button id="deal-next" class="primary big" style="visibility:hidden"></button>
   </section>
 
   <!-- DISCUSSION -->
   <section id="s-talk" class="screen">
     <div class="center">
-      <div class="hint">Tout le monde a son mot !</div>
-      <div style="font-size:1.3rem">C'est <b id="first-player" style="color:var(--accent)"></b> qui commence.</div>
-      <div class="hint">Chacun à son tour dit un mot ou une phrase en lien avec son mot secret, sans être trop précis… L'espion doit se fondre dans la masse !</div>
+      <div class="hint" data-i18n="allSet"></div>
+      <div style="font-size:1.3rem" id="first-player"></div>
+      <div class="hint" data-i18n="talkHint"></div>
       <div class="timer" id="timer"></div>
-      <button id="timer-toggle" style="display:none">Pause</button>
+      <button id="timer-toggle" style="display:none"></button>
     </div>
-    <button id="go-vote" class="primary big">Passer au vote</button>
+    <button id="go-vote" class="primary big" data-i18n="goVote"></button>
   </section>
 
   <!-- VOTE -->
   <section id="s-vote" class="screen">
-    <h2 style="text-align:center">Qui est l'espion ?</h2>
-    <p class="subtitle">Votez à voix haute, puis touchez le joueur éliminé.</p>
+    <h2 style="text-align:center" data-i18n="whoSpy"></h2>
+    <p class="subtitle" data-i18n="voteHint"></p>
     <div class="vote-grid" id="vote-grid"></div>
     <div class="footer">
-      <button id="reveal-all" class="link">Abandonner et tout révéler</button>
+      <button id="reveal-all" class="link" data-i18n="giveUp"></button>
     </div>
   </section>
 
@@ -222,7 +245,7 @@
       <div class="result-title" id="elim-result"></div>
       <div class="hint" id="elim-hint"></div>
     </div>
-    <button id="elim-next" class="primary big">Continuer</button>
+    <button id="elim-next" class="primary big"></button>
   </section>
 
   <!-- FIN -->
@@ -230,19 +253,19 @@
     <div class="center" style="flex:0; padding-top:24px">
       <div class="result-title" id="end-title"></div>
       <div class="card" style="width:100%">
-        <div class="hint">Mot des civils</div>
+        <div class="hint" data-i18n="civWord"></div>
         <div class="word" id="end-word" style="font-size:2rem"></div>
         <div id="end-spyword-wrap" style="margin-top:10px">
-          <div class="hint">Mot de l'espion</div>
+          <div class="hint" data-i18n="spyWord"></div>
           <div class="word" id="end-spyword" style="font-size:1.6rem; color:var(--spy)"></div>
         </div>
       </div>
     </div>
-    <h2>Rôles &amp; scores</h2>
+    <h2 data-i18n="rolesScores"></h2>
     <ul id="end-list"></ul>
     <div class="footer">
-      <button id="replay" class="primary big">Rejouer</button>
-      <button id="back-setup" class="link">Modifier les joueurs</button>
+      <button id="replay" class="primary big" data-i18n="replay"></button>
+      <button id="back-setup" class="link" data-i18n="editPlayers"></button>
     </div>
   </section>
 
@@ -250,7 +273,7 @@
 
 <script>
 // Paires de mots proches : [mot des civils, mot proche pour l'espion]
-const DICT = {
+const DICT_FR = {
   "Nourriture": [
     ["Pizza","Tarte flambée"],["Croissant","Pain au chocolat"],["Fromage","Beurre"],["Sushi","Maki"],["Hamburger","Sandwich"],
     ["Crêpe","Gaufre"],["Chocolat","Caramel"],["Pomme","Poire"],["Fraise","Framboise"],["Raclette","Fondue"],
@@ -554,6 +577,371 @@ const DICT = {
   ]
 };
 
+const DICT_EN = {
+  "Food": [
+    ["Pizza","Flatbread"],["Croissant","Danish"],["Cheese","Butter"],["Sushi","Sashimi"],["Hamburger","Sandwich"],
+    ["Pancake","Waffle"],["Chocolate","Caramel"],["Apple","Pear"],["Strawberry","Raspberry"],["Fondue","Raclette"],
+    ["Spaghetti","Lasagna"],["Fries","Chips"],["Ice cream","Sorbet"],["Bread","Bagel"],["Coffee","Tea"],
+    ["Wine","Beer"],["Soup","Stew"],["Tomato","Bell pepper"],["Banana","Mango"],["Taco","Burrito"],
+    ["Egg","Omelette"],["Lemon","Orange"],["Honey","Jam"],["Popcorn","Cotton candy"],["Kebab","Gyro"],
+    ["Carrot","Radish"],["Rice","Noodles"],["Steak","Pork chop"],["Salami","Ham"],["Yogurt","Pudding"],
+    ["Cherry","Plum"],["Watermelon","Melon"],["Mushroom","Truffle"],["Ketchup","Mustard"],["Candy","Lollipop"],
+    ["Macaron","Meringue"],["Quiche","Pie"],["Oyster","Mussel"],["Shrimp","Lobster"],["Pineapple","Coconut"],
+    ["Cookie","Muffin"],["Orange juice","Lemonade"],["Champagne","Cider"],["Salad","Coleslaw"],["Cauliflower","Broccoli"],
+    ["Peach","Apricot"],["Kiwi","Lychee"],["Grape","Currant"],["Blueberry","Blackberry"],["Tangerine","Clementine"],
+    ["Grapefruit","Lime"],["Fig","Date"],["Avocado","Artichoke"],["Cucumber","Zucchini"],["Eggplant","Pumpkin"],
+    ["Onion","Garlic"],["Leek","Celery"],["Peas","Green beans"],["Lentils","Chickpeas"],["Corn","Wheat"],
+    ["Potato","Sweet potato"],["Spinach","Lettuce"],["Hazelnut","Almond"],["Peanut","Pistachio"],["Walnut","Chestnut"],
+    ["Chicken","Turkey"],["Salmon","Tuna"],["Sardine","Anchovy"],["Bacon","Sausage"],["Hot dog","Corn dog"],
+    ["Meatball","Meatloaf"],["Roast beef","Pot roast"],["Mac and cheese","Grilled cheese"],["Fish and chips","Fish sticks"],["Nachos","Quesadilla"],
+    ["Spring roll","Dumpling"],["Ramen","Pho"],["Curry","Chili"],["Risotto","Paella"],["Ravioli","Tortellini"],
+    ["Brie","Camembert"],["Cheddar","Gouda"],["Mozzarella","Parmesan"],["Milk","Cream"],["Whipped cream","Chocolate mousse"],
+    ["Tiramisu","Cheesecake"],["Eclair","Cream puff"],["Apple pie","Crumble"],["Custard","Crème brûlée"],["Donut","Churro"],
+    ["French toast","Crêpe"],["Cereal","Granola"],["Gingerbread","Shortbread"],["Toast","Cracker"],["Salt","Pepper"],
+    ["Sugar","Sweetener"],["Vinegar","Olive oil"],["Mayonnaise","Ranch dressing"],["Pesto","Tomato sauce"],["Pickle","Olive"],
+    ["Smoothie","Milkshake"],["Soda","Sparkling water"],["Whiskey","Rum"],["Vodka","Tequila"],["Cocktail","Mocktail"],
+    ["Espresso","Latte"],["Hot chocolate","Cappuccino"],["Birthday cake","Cupcake"],["Brownie","Fudge"],["Pretzel","Breadstick"],
+    ["Wrap","Fajita"],["Tapas","Antipasto"],["Caviar","Fish roe"],["Squid","Octopus"],["Peanut butter","Maple syrup"],
+    ["Jelly","Gummy bears"],["BBQ ribs","Chicken wings"]
+  ],
+  "Animals": [
+    ["Dog","Wolf"],["Cat","Tiger"],["Lion","Panther"],["Dolphin","Shark"],["Horse","Donkey"],
+    ["Eagle","Falcon"],["Bee","Wasp"],["Frog","Toad"],["Mouse","Hamster"],["Cow","Bull"],
+    ["Penguin","Seagull"],["Snake","Lizard"],["Butterfly","Dragonfly"],["Bear","Panda"],["Monkey","Gorilla"],
+    ["Hen","Duck"],["Snail","Slug"],["Rabbit","Hare"],["Whale","Orca"],["Elephant","Rhinoceros"],
+    ["Owl","Hawk"],["Spider","Scorpion"],["Giraffe","Zebra"],["Crocodile","Alligator"],["Kangaroo","Koala"],
+    ["Fox","Badger"],["Sheep","Goat"],["Pig","Boar"],["Mosquito","Fly"],["Ant","Termite"],
+    ["Turtle","Tortoise"],["Parrot","Toucan"],["Jellyfish","Sea anemone"],["Squirrel","Beaver"],["Camel","Llama"],
+    ["Deer","Moose"],["Goldfish","Carp"],["Seal","Walrus"],["Ladybug","Beetle"],["Hedgehog","Porcupine"],
+    ["Hippo","Tapir"],["Cheetah","Leopard"],["Hyena","Jackal"],["Jaguar","Puma"],["Lynx","Bobcat"],
+    ["Bison","Buffalo"],["Alpaca","Yak"],["Gazelle","Antelope"],["Chimpanzee","Orangutan"],["Lemur","Sloth"],
+    ["Armadillo","Anteater"],["Otter","Mink"],["Mole","Shrew"],["Rat","Vole"],["Bat","Swallow"],
+    ["Pigeon","Crow"],["Sparrow","Robin"],["Magpie","Jay"],["Swan","Goose"],["Flamingo","Heron"],
+    ["Peacock","Pheasant"],["Ostrich","Emu"],["Vulture","Condor"],["Hummingbird","Finch"],["Pelican","Albatross"],
+    ["Rooster","Chick"],["Trout","Pike"],["Stingray","Swordfish"],["Seahorse","Starfish"],["Crab","Crayfish"],
+    ["Eel","Moray"],["Piranha","Barracuda"],["Iguana","Chameleon"],["Cobra","Viper"],["Python","Boa"],
+    ["Salamander","Newt"],["Grasshopper","Locust"],["Cricket","Cicada"],["Caterpillar","Earthworm"],["Centipede","Woodlouse"],
+    ["Flea","Tick"],["Hornet","Bumblebee"],["Praying mantis","Stick insect"],["Firefly","Glowworm"],["Pony","Mule"],
+    ["Lamb","Ram"],["Puppy","Kitten"],["Ferret","Weasel"],["Guinea pig","Gerbil"],["Raccoon","Skunk"],
+    ["Platypus","Wombat"],["Sea lion","Manatee"],["Narwhal","Beluga"],["Puffin","Kingfisher"],["Mammoth","Sabre-toothed tiger"],
+    ["Tadpole","Minnow"],["Wild turkey","Guinea fowl"],["Wildebeest","Okapi"],["Meerkat","Mongoose"],["Coyote","Dingo"],
+    ["Gecko","Komodo dragon"],["Polar bear","Grizzly"],["Moth","Mayfly"]
+  ],
+  "Places": [
+    ["Beach","Swimming pool"],["Mountain","Hill"],["School","University"],["Hospital","Pharmacy"],["Cinema","Theater"],
+    ["Restaurant","Cafeteria"],["Airport","Train station"],["Supermarket","Farmers market"],["Library","Bookshop"],["Church","Cathedral"],
+    ["Prison","Police station"],["Forest","Jungle"],["Desert","Savanna"],["Museum","Art gallery"],["Zoo","Farm"],
+    ["Bakery","Pastry shop"],["Nightclub","Bar"],["Stadium","Gym"],["Hotel","Campsite"],["Island","Peninsula"],
+    ["Paris","London"],["Moon","Mars"],["Subway","Tram"],["Bank","Post office"],["Town hall","Courthouse"],
+    ["Parking lot","Garage"],["Lighthouse","Harbor"],["Cave","Mine"],["Theme park","Funfair"],["Circus","Cabaret"],
+    ["Spa","Sauna"],["Basement","Attic"],["Kitchen","Dining room"],["Bathroom","Toilet"],["Ski resort","Chalet"],
+    ["Volcano","Geyser"],["Lake","River"],["Cemetery","Crypt"],["Factory","Warehouse"],["Office","Coworking space"],
+    ["Pizzeria","Diner"],["Fast food restaurant","Food truck"],["Hair salon","Barbershop"],["Dry cleaner","Laundromat"],["Gas station","Toll booth"],
+    ["Highway","Country road"],["Bridge","Tunnel"],["Roundabout","Crossroads"],["Village square","Bandstand"],["Garden","Vegetable patch"],
+    ["Balcony","Terrace"],["Bedroom","Dormitory"],["Living room","Porch"],["Hallway","Staircase"],["Roof","Chimney"],
+    ["Bunker","Panic room"],["Igloo","Hut"],["Tent","Yurt"],["Skyscraper","Eiffel Tower"],["Pyramid","Temple"],
+    ["Colosseum","Arena"],["Mosque","Synagogue"],["Monastery","Abbey"],["Palace","Mansion"],["Windmill","Barn"],
+    ["Vineyard","Orchard"],["Field","Meadow"],["Swamp","Mangrove"],["Cliff","Dune"],["Reef","Lagoon"],
+    ["Oasis","Canyon"],["Valley","Plateau"],["Military base","Barracks"],["Embassy","Consulate"],["Laboratory","Observatory"],
+    ["TV studio","Film set"],["Concert hall","Auditorium"],["Casino","Arcade"],["Aquarium","Water park"],["Space station","Moon base"],
+    ["Nursery","Kindergarten"],["High school","Middle school"],["Boarding school","Summer camp"],["Retirement home","Clinic"],["Doctor's office","Emergency room"],
+    ["Shopping mall","Department store"],["Internet café","Game room"],["Pier","Dock"],["Rest stop","Motel"],["Rome","Madrid"],
+    ["New York","Los Angeles"],["Tokyo","Beijing"],["Venice","Amsterdam"],["Las Vegas","Miami"],["Sydney","Melbourne"],
+    ["Italy","Spain"],["Brazil","Argentina"],["Canada","United States"],["Australia","New Zealand"],["Germany","Austria"],
+    ["Belgium","Switzerland"],["Norway","Sweden"],["India","Thailand"],["Mexico","Peru"],["Scotland","Ireland"],
+    ["Egypt","Morocco"]
+  ],
+  "Objects": [
+    ["Phone","Tablet"],["Pen","Pencil"],["Chair","Stool"],["Bed","Sofa"],["Umbrella","Raincoat"],
+    ["Watch","Bracelet"],["Glasses","Binoculars"],["Key","Padlock"],["Scissors","Knife"],["Candle","Lamp"],
+    ["Mirror","Window"],["Suitcase","Backpack"],["Toothbrush","Comb"],["Pillow","Duvet"],["Fridge","Freezer"],
+    ["Television","Computer"],["Guitar","Violin"],["Piano","Drums"],["Ball","Frisbee"],["Book","Magazine"],
+    ["Sock","Glove"],["Cap","Hat"],["Bottle","Glass"],["Hammer","Screwdriver"],["Fork","Spoon"],
+    ["Plate","Bowl"],["Saucepan","Frying pan"],["Vacuum cleaner","Broom"],["Hair dryer","Straightener"],["Camera","Camcorder"],
+    ["Headphones","Earbuds"],["Remote control","Game controller"],["Diary","Calendar"],["Envelope","Postcard"],["Eraser","Pencil sharpener"],
+    ["Rug","Doormat"],["Clock","Hourglass"],["Ladder","Stepladder"],["Compass","Map"],["Wallet","Purse"],
+    ["Cushion","Blanket"],["Curtain","Blinds"],["Shelf","Wardrobe"],["Chest of drawers","Drawer"],["Table","Counter"],
+    ["Floor lamp","Chandelier"],["Plug","Extension cord"],["Charger","Cable"],["USB stick","Hard drive"],["Printer","Scanner"],
+    ["Keyboard","Monitor"],["Fan","Air conditioner"],["Radiator","Wood stove"],["Oven","Microwave"],["Toaster","Kettle"],
+    ["Coffee maker","Teapot"],["Blender","Food processor"],["Washing machine","Dryer"],["Dishwasher","Sink"],["Trash can","Bucket"],
+    ["Sponge","Mop"],["Soap","Shampoo"],["Toothpaste","Dental floss"],["Razor","Trimmer"],["Perfume","Deodorant"],
+    ["Lipstick","Nail polish"],["Towel","Washcloth"],["Swiss army knife","Pocketknife"],["Flashlight","Lantern"],["Lighter","Match"],
+    ["Rope","String"],["Tape","Glue"],["Stapler","Paper clip"],["Ruler","Protractor"],["Notebook","Notepad"],
+    ["Pencil case","Schoolbag"],["Chalk","Marker"],["Calculator","Abacus"],["Globe","Atlas"],["Dice","Playing card"],
+    ["Teddy bear","Doll"],["Spinning top","Marble"],["Yo-yo","Cup and ball"],["Kite","Boomerang"],["Swing","Slide"],
+    ["Trampoline","Bouncy castle"],["Watering can","Garden hose"],["Shovel","Rake"],["Wheelbarrow","Hand truck"],["Drill","Saw"],
+    ["Nail","Screw"],["Hanger","Coat rack"],["Parasol","Hand fan"],["Whistle","Horn"],["Magnet","Spring"],
+    ["Box","Crate"],["Basket","Tote bag"],["Thermometer","Barometer"],["Magnifying glass","Microscope"],["Telescope","Spyglass"],
+    ["Flag","Banner"],["Trophy","Medal"],["Piggy bank","Safe"],["Doorbell","Intercom"]
+  ],
+  "Transport": [
+    ["Car","Truck"],["Bicycle","Scooter"],["Plane","Helicopter"],["Boat","Submarine"],["Train","High-speed train"],
+    ["Motorbike","Moped"],["Bus","Coach"],["Rocket","Space shuttle"],["Taxi","Rideshare"],["Skateboard","Rollerblades"],
+    ["Hot air balloon","Parachute"],["Tractor","Bulldozer"],["Ambulance","Fire truck"],["Kayak","Canoe"],["Sailboat","Yacht"],
+    ["Cable car","Chairlift"],["Horse carriage","Cart"],["Jet ski","Speedboat"],["Limousine","Convertible"],["Elevator","Escalator"],
+    ["Camper van","Caravan"],["Glider","Hang glider"],["Race car","Go-kart"],["Formula 1","Rally car"],["Quad bike","Dune buggy"],
+    ["Sidecar","Three-wheeler"],["Tandem","Unicycle"],["E-bike","Electric scooter"],["Hoverboard","Self-balancing scooter"],["Tuk-tuk","Rickshaw"],
+    ["Gondola","Pedal boat"],["Cruise ship","Ferry"],["Barge","Houseboat"],["Raft","Rowboat"],["Catamaran","Trimaran"],
+    ["Tugboat","Cargo ship"],["Aircraft carrier","Battleship"],["Hovercraft","Seaplane"],["Airship","Ultralight"],["Fighter jet","Bomber"],
+    ["Private jet","Airliner"],["Drone","RC plane"],["Satellite","Space probe"],["Flying saucer","Spaceship"],["Tank","Armored car"],
+    ["Jeep","4x4"],["SUV","Minivan"],["Pickup truck","Van"],["Semi truck","Tanker truck"],["Cement mixer","Crane"],
+    ["Tow truck","Garbage truck"],["Hearse","Delivery van"],["Police car","Police motorcycle"],["School bus","Double-decker bus"],["Shuttle","Minibus"],
+    ["Funicular","Cog railway"],["Monorail","Maglev"],["Night train","Sleeper car"],["Steam locomotive","Handcar"],["Commuter train","Light rail"],
+    ["Sleigh","Sled"],["Snowmobile","Snowcat"],["Bobsleigh","Toboggan"],["Stagecoach","Royal carriage"],["Shopping cart","Luggage trolley"],
+    ["Stroller","Pram"],["Wheelchair","Walker"],["Electric car","Hybrid car"],["Carpool","Hitchhiking"],["Riverboat","Water taxi"],
+    ["Junk","Sampan"],["Galley","Viking longship"],["Caravel","Galleon"],["Paddleboard","Bodyboard"],["Zip line","Gondola lift"],
+    ["Ski lift","Rope tow"],["Jetpack","Hoverbike"],["Bathyscaphe","Diving bell"],["Ice cream truck","Moving truck"],["Icebreaker","Trawler"],
+    ["Pirate ship","Fishing boat"],["Bike share","Pedicab"],["Driverless car","Golf cart"],["Motorhome","Trailer"],["Forklift","Pallet jack"],
+    ["Excavator","Backhoe"],["Trolleybus","Electric bus"],["Cargo bike","Tricycle"],["Paper plane","Model airplane"],["Amphibious car","Duck boat"],
+    ["Sports car","Classic car"],["Lifeboat","Dinghy"],["Mail truck","Delivery bike"],["Rescue helicopter","Water bomber"],["Overnight bus","Tour bus"]
+  ],
+  "Jobs": [
+    ["Doctor","Nurse"],["Police officer","Sheriff"],["Firefighter","Paramedic"],["Teacher","Principal"],["Baker","Pastry chef"],
+    ["Cook","Waiter"],["Pilot","Flight attendant"],["Lawyer","Judge"],["Hairdresser","Beautician"],["Plumber","Electrician"],
+    ["Singer","Musician"],["Actor","Director"],["Astronaut","Fighter pilot"],["Dentist","Surgeon"],["Mail carrier","Delivery driver"],
+    ["Farmer","Gardener"],["Vet","Animal trainer"],["Journalist","Writer"],["Architect","Builder"],["Banker","Accountant"],
+    ["Butcher","Fishmonger"],["Photographer","Painter"],["Mechanic","Car dealer"],["Soldier","Bodyguard"],["Cashier","Salesperson"],
+    ["Programmer","Hacker"],["Clown","Street magician"],["Psychologist","Life coach"],["Detective","Spy"],["President","King"],
+    ["Notary","Bailiff"],["Pharmacist","Optician"],["Physiotherapist","Chiropractor"],["Midwife","Pediatrician"],["Ambulance driver","Orderly"],
+    ["Florist","Landscaper"],["Carpenter","Cabinetmaker"],["House painter","Tiler"],["Locksmith","Glazier"],["Roofer","Chimney sweep"],
+    ["Taxi driver","Truck driver"],["Bus driver","Train driver"],["Captain","Sailor"],["Air traffic controller","Radar operator"],["Customs officer","Security guard"],
+    ["Bouncer","Doorman"],["Gas station attendant","Toll collector"],["Garbage collector","Street sweeper"],["Janitor","Caretaker"],["Window cleaner","Housekeeper"],
+    ["Babysitter","Nanny"],["Camp counselor","Instructor"],["Referee","Commentator"],["Soccer player","Rugby player"],["DJ","Music producer"],
+    ["Dancer","Choreographer"],["Model","Fashion designer"],["Tailor","Shoemaker"],["Jeweler","Watchmaker"],["Sommelier","Bartender"],
+    ["Michelin chef","Caterer"],["Cheesemonger","Milkman"],["Wine merchant","Brewer"],["Winemaker","Beekeeper"],["Fisherman","Shepherd"],
+    ["Lumberjack","Park ranger"],["Scientist","Researcher"],["Chemist","Biologist"],["Astronomer","Astrologer"],["Archaeologist","Paleontologist"],
+    ["Historian","Tour guide"],["Librarian","Bookseller"],["Translator","Interpreter"],["Secretary","Assistant"],["Manager","Boss"],
+    ["Real estate agent","Property developer"],["Insurance agent","Financial advisor"],["Trader","Stockbroker"],["Mayor","Senator"],["Minister","Ambassador"],
+    ["Governor","Prime minister"],["Legionnaire","Marine"],["Race car driver","Stuntman"],["Monk","Priest"],["Imam","Rabbi"],
+    ["Streamer","Pro gamer"],["Web developer","UX designer"],["Graphic designer","Illustrator"],["Cartoonist","Caricaturist"],["Sculptor","Potter"],
+    ["Piano teacher","Conductor"],["Ventriloquist","Mime"],["Juggler","Acrobat"],["Lion tamer","Tightrope walker"],["Lifeguard","Swimming instructor"],
+    ["Diver","Deep-sea diver"],["Pizza chef","Sushi chef"],["Manicurist","Makeup artist"],["Tattoo artist","Piercer"],["Influencer","YouTuber"],
+    ["Barista","Tea master"]
+  ],
+  "Sports & hobbies": [
+    ["Soccer","Rugby"],["Tennis","Badminton"],["Swimming","Diving"],["Skiing","Snowboarding"],["Basketball","Handball"],
+    ["Judo","Karate"],["Golf","Mini golf"],["Chess","Checkers"],["Boxing","Wrestling"],["Surfing","Windsurfing"],
+    ["Dancing","Gymnastics"],["Fishing","Hunting"],["Bowling","Bocce"],["Poker","Blackjack"],["Yoga","Meditation"],
+    ["Climbing","Hiking"],["Volleyball","Beach volleyball"],["Cycling","Mountain biking"],["Marathon","Sprint"],["Fencing","Archery"],
+    ["Horse riding","Polo"],["Ice skating","Ice hockey"],["Ping pong","Squash"],["Video games","Board games"],["Jigsaw puzzle","Crossword"],
+    ["Karaoke","Music quiz"],["Reading","Writing"],["Knitting","Sewing"],["Cooking","Baking"],["Gardening","DIY"],
+    ["Paintball","Laser tag"],["Pool","Darts"],["American football","Rugby league"],["Water polo","Synchronized swimming"],["Rowing","Canoeing"],
+    ["Triathlon","Biathlon"],["High jump","Pole vault"],["Javelin","Shot put"],["Weightlifting","Bodybuilding"],["Fitness","Aerobics"],
+    ["Pilates","Stretching"],["Taekwondo","Kung fu"],["Sumo","Greco-Roman wrestling"],["MMA","Kickboxing"],["Parkour","Slackline"],
+    ["BMX","Motocross"],["Skateboarding","Freestyle scooter"],["Kitesurfing","Paragliding"],["Bungee jumping","Skydiving"],["Caving","Canyoning"],
+    ["Rafting","Kayaking"],["Cross-country skiing","Snowshoeing"],["Curling","Shuffleboard"],["Field hockey","Lacrosse"],["Orienteering","Treasure hunt"],
+    ["Escape room","Murder mystery party"],["Sudoku","Word search"],["Brain teaser","Riddle"],["Origami","Scrapbooking"],["Watercolor","Oil painting"],
+    ["Drawing","Coloring"],["Pottery","Mosaic"],["Photography","Filmmaking"],["Stamp collecting","Coin collecting"],["Model building","Model trains"],
+    ["Sunbathing","Building sandcastles"],["Hide and seek","Tag"],["Hopscotch","Jump rope"],["Jacks","Pick-up sticks"],["Bingo","Lottery"],
+    ["Raffle","Scratch card"],["Sports betting","Horse racing"],["Rodeo","Show jumping"],["Tour de France","Olympics"],["World Cup","Super Bowl"],
+    ["Ballet","Contemporary dance"],["Salsa","Tango"],["Breakdance","Hip-hop dance"],["Snorkeling","Freediving"],["Sailing","Regatta"],
+    ["Spearfishing","Fly fishing"],["Birdwatching","Stargazing"],["Shooting","Clay pigeon shooting"],["Water skiing","Wakeboarding"],["Jogging","Nordic walking"],
+    ["Roller derby","Figure skating"],["Dominoes","Mahjong"],["Tic-tac-toe","Hangman"],["Rock paper scissors","Coin toss"],["Table football","Air hockey"],
+    ["Pinball","Arcade games"],["Hula hoop","Juggling"],["Charades","Twenty questions"]
+  ],
+  "Everyday life": [
+    ["Birthday","Wedding"],["Christmas","New Year's Eve"],["Halloween","Carnival"],["Vacation","Weekend"],["Shower","Bath"],
+    ["Breakfast","Brunch"],["Nap","Night's sleep"],["Alarm clock","Wake-up call"],["Selfie","Group photo"],["Picnic","Barbecue"],
+    ["Concert","Festival"],["Traffic jam","Roadworks"],["Rain","Snow"],["Sunshine","Heatwave"],["Thunderstorm","Blizzard"],
+    ["Cold","Flu"],["Monday","Friday"],["Back to school","Exam"],["Moving out","Moving in"],["Laundry","Ironing"],
+    ["Dishes","Housework"],["Groceries","Shopping spree"],["Argument","Making up"],["Baby","Toddler"],["Grandma","Aunt"],
+    ["Neighbor","Roommate"],["Headache","Backache"],["Nightmare","Dream"],["Being late","Oversleeping"],["Gift","Surprise"],
+    ["Tip","Change"],["Easter","Valentine's Day"],["Mother's Day","Father's Day"],["Independence Day","Fireworks"],["Baptism","First communion"],
+    ["Funeral","Mourning"],["Divorce","Breakup"],["Engagement","Proposal"],["Birth","Pregnancy"],["Housewarming","Sleepover"],
+    ["Happy hour","Afternoon tea"],["Dinner","Supper"],["Hangover","Exhaustion"],["Insomnia","Sleepwalking"],["Strike","Protest"],
+    ["Election","Referendum"],["Taxes","Bills"],["Rent","Mortgage"],["Salary","Bonus"],["Unemployment","Retirement"],
+    ["Remote work","Meeting"],["Coffee break","Lunch break"],["Overtime","On-call"],["PIN code","Password"],["Text message","Email"],
+    ["Video call","Voice message"],["Social media","Forum"],["Like","Comment"],["Wi-Fi","Mobile data"],["Dead battery","Cracked screen"],
+    ["Software update","Bug"],["Flat tire","Out of gas"],["Parking ticket","Speed camera"],["Driver's license","Driving test"],["Passport","ID card"],
+    ["Jet lag","Layover"],["Sunburn","Heatstroke"],["Mosquito bite","Bee sting"],["Allergy","Asthma"],["Family dinner","Thanksgiving"],
+    ["Kiss","Hug"],["Handshake","High five"],["Wink","Smile"],["Laughter","Tears"],["Anger","Jealousy"],
+    ["Fear","Stress"],["Boredom","Laziness"],["Tidying up","Recycling"],["Compost","Trash day"],["Dog walk","Litter box"],
+    ["Brushing teeth","Shaving"],["Makeup","Hairstyle"],["Prom","School dance"],["Sales","Black Friday"],["Discount","Coupon"],
+    ["Delivery","Parcel"],["Bus ticket","Monthly pass"],["Rush hour","Traffic light"],["Fire alarm","Power outage"],["Lost keys","Locked out"],
+    ["Queue","Waiting room"],["Coffee machine","Water cooler"],["Surprise party","Costume party"],["First date","Love at first sight"],["First tooth","First steps"],
+    ["Garage sale","Flea market"],["Shopping list","Sticky note"],["School trip","Field trip"],["Report card","Parent-teacher meeting"]
+  ],
+  "Fantasy": [
+    ["Vampire","Werewolf"],["Witch","Wizard"],["Dragon","Dinosaur"],["Ghost","Zombie"],["Unicorn","Pegasus"],
+    ["Mermaid","Pirate"],["Robot","Cyborg"],["Alien","Monster"],["Fairy","Elf"],["Ninja","Samurai"],
+    ["Superhero","Vigilante"],["Knight","Musketeer"],["Giant","Ogre"],["Leprechaun","Gnome"],["Mummy","Skeleton"],
+    ["Magic wand","Potion"],["Princess","Queen"],["Treasure","Treasure chest"],["Haunted house","Haunted castle"],["Angel","Demon"],
+    ["Sorcerer","Druid"],["Troll","Goblin"],["Magic carpet","Flying broomstick"],["Cyclops","Minotaur"],["Phoenix","Griffin"],
+    ["Hydra","Kraken"],["Centaur","Satyr"],["Gorgon","Harpy"],["Golem","Gargoyle"],["Yeti","Bigfoot"],
+    ["Genie","Magic lamp"],["Pixie","Sprite"],["Necromancer","Dark mage"],["Paladin","Templar"],["Archer","Ranger"],
+    ["Barbarian","Viking"],["Corsair","Buccaneer"],["Cowboy","Outlaw"],["Gladiator","Centurion"],["Pharaoh","Sphinx"],
+    ["Mage","Enchanter"],["Alchemist","Sorcerer's apprentice"],["Spellbook","Scroll"],["Crystal ball","Pendulum"],["Curse","Spell"],
+    ["Prophecy","Oracle"],["Sword","Shield"],["Armor","Helmet"],["Bow","Crossbow"],["Battle axe","War hammer"],
+    ["Catapult","Trebuchet"],["Dungeon","Tower"],["Drawbridge","Moat"],["Labyrinth","Secret passage"],["Magic portal","Teleportation"],
+    ["Time machine","Teleporter"],["Invisibility","Telepathy"],["Super speed","Super strength"],["Laser beam","Lightsaber"],["Clone","Android"],
+    ["Artificial intelligence","Hologram"],["Unknown planet","Galaxy"],["Black hole","Meteorite"],["Apocalypse","Alien invasion"],["Ghoul","Revenant"],
+    ["Poltergeist","Spirit"],["Exorcist","Ghost hunter"],["Coffin","Grave"],["Full moon","Eclipse"],["Cauldron","Witch's hat"],
+    ["Santa Claus","Tooth fairy"],["Easter bunny","Easter egg"],["Bogeyman","Sandman"],["Elixir","Love potion"],["Magic ring","Amulet"],
+    ["Excalibur","Holy Grail"],["Atlantis","El Dorado"],["Nymph","Dryad"],["Titan","Colossus"],["Zeus","Thor"],
+    ["Hercules","Achilles"],["Poseidon","Hades"],["Black cat","Broken mirror"],["Fairy godmother","Good fairy"],["Ice castle","Cloud castle"],
+    ["Ice dragon","Wyvern"],["Basilisk","Chimera"],["Banshee","Wraith"],["Dark elf","Orc"],["Glass slipper","Pumpkin carriage"],
+    ["Magic beanstalk","Enchanted tree"],["Magic mirror","Poisoned apple"],["Seven-league boots","Invisibility cloak"],["Black knight","White knight"],["Dwarf","Halfling"],
+    ["Dragon hoard","Dragon egg"],["Monster under the bed","Closet monster"],["Gingerbread house","Candy castle"],["Fortune teller","Psychic"]
+  ],
+  "Body & health": [
+    ["Hand","Foot"],["Eye","Ear"],["Nose","Mouth"],["Heart","Lung"],["Knee","Elbow"],
+    ["Hair","Beard"],["Tooth","Tongue"],["Fingernail","Finger"],["Shoulder","Neck"],["Brain","Skull"],
+    ["Vaccine","Injection"],["Cast","Bandage"],["Medicine","Syrup"],["Contact lenses","Eye drops"],["Hiccups","Sneeze"],
+    ["Yawn","Snore"],["Leg","Arm"],["Thigh","Calf"],["Ankle","Wrist"],["Heel","Toe"],
+    ["Hip","Buttock"],["Belly","Belly button"],["Back","Spine"],["Chest","Ribs"],["Forehead","Chin"],
+    ["Cheek","Jaw"],["Eyebrow","Eyelash"],["Eyelid","Pupil"],["Lip","Gum"],["Throat","Nape"],
+    ["Stomach","Intestine"],["Liver","Kidney"],["Blood","Vein"],["Muscle","Tendon"],["Bone","Cartilage"],
+    ["Skin","Pore"],["Beauty mark","Freckle"],["Wrinkle","Scar"],["Pimple","Blackhead"],["Blister","Callus"],
+    ["Bruise","Bump"],["Fever","Chills"],["Cough","Sore throat"],["Nausea","Dizziness"],["Cramp","Muscle ache"],
+    ["Sprain","Fracture"],["Burn","Cut"],["Migraine","Sinusitis"],["Chickenpox","Measles"],["Tonsillitis","Ear infection"],
+    ["Indigestion","Bloating"],["Diabetes","Cholesterol"],["Surgery","Anesthesia"],["X-ray","MRI"],["Ultrasound","Blood test"],
+    ["Stethoscope","Blood pressure monitor"],["Syringe","IV drip"],["Crutches","Splint"],["Prescription","Health insurance card"],["Pill","Capsule"],
+    ["Ointment","Sunscreen"],["Massage","Acupuncture"],["Diet","Fasting"],["Sweat","Tear"],["Saliva","Snot"],
+    ["Burp","Fart"],["Hunger","Thirst"],["Sleepiness","Fatigue"],["Heartbeat","Pulse"],["Breathing","Breath"],
+    ["Puberty","Growth spurt"],["Old age","Youth"],["Baldness","Gray hair"],["Braces","Dentures"],["Cavity","Filling"],
+    ["Neuron","Nerve"],["Fist","Palm"],["Armpit","Groin"],["Eardrum","Nostril"],["Earlobe","Earwax"],
+    ["Hematoma","Scratch"],["Insulin","Antibiotic"],["School nurse's office","Dentist's office"],["Defibrillator","CPR"],["Warm-up","Cool-down"],
+    ["Adam's apple","Larynx"],["Kneecap","Meniscus"],["Shoulder blade","Collarbone"],["Dimple","Cheekbone"],["Fingerprint","Palm line"],
+    ["Vocal cords","Tonsils"],["Bladder","Pancreas"],["Hormone","Adrenaline"],["Red blood cell","Platelet"],["Virus","Bacteria"],
+    ["Germ","Parasite"],["Depression","Burnout"],["Physical therapy","Rehab"],["Adhesive bandage","Gauze"],["Tissue","Cotton swab"],
+    ["Electric toothbrush","Water flosser"]
+  ],
+  "Clothing": [
+    ["Jeans","Trousers"],["T-shirt","Shirt"],["Sweater","Cardigan"],["Coat","Puffer jacket"],["Dress","Skirt"],
+    ["Sneakers","Flip-flops"],["Boots","Ankle boots"],["Pajamas","Bathrobe"],["Tie","Bow tie"],["Scarf","Shawl"],
+    ["Shorts","Bermuda shorts"],["Swimsuit","Bikini"],["Suit","Tuxedo"],["Beanie","Balaclava"],["Belt","Suspenders"],
+    ["Necklace","Earrings"],["Ring","Wedding ring"],["Handbag","Clutch"],["Shoes","Sandals"],["Pumps","High heels"],
+    ["Loafers","Oxfords"],["Slippers","Moccasins"],["Clogs","Espadrilles"],["Rain boots","Snow boots"],["Rain jacket","Windbreaker"],
+    ["Parka","Anorak"],["Bomber jacket","Leather jacket"],["Blazer","Suit jacket"],["Trench coat","Overcoat"],["Cape","Poncho"],
+    ["Hoodie","Fleece"],["Tank top","Crop top"],["Polo shirt","Short-sleeve shirt"],["Bodysuit","Leotard"],["Leggings","Tights"],
+    ["Tracksuit","Sweatpants"],["Overalls","Jumpsuit"],["Kilt","Sarong"],["Sari","Kimono"],["Apron","Lab coat"],
+    ["Uniform","Evening wear"],["Wedding dress","Veil"],["Briefs","Boxers"],["Panties","Thong"],["Bra","Sports bra"],
+    ["Knee socks","Ankle socks"],["Beret","Bucket hat"],["Straw hat","Sombrero"],["Top hat","Bowler hat"],["Motorcycle helmet","Bike helmet"],
+    ["Mittens","Fingerless gloves"],["Sunglasses","Visor"],["Cufflinks","Tie clip"],["Brooch","Pendant"],["Chain","Bangle"],
+    ["Tiara","Headband"],["Scrunchie","Hair clip"],["Wig","Hairpiece"],["Satchel","Messenger bag"],["Zipper","Velcro"],
+    ["Shoelaces","Buckle"],["Pocket","Hood"],["Turtleneck","V-neck"],["Short sleeves","Long sleeves"],["Lining","Hem"],
+    ["Wool","Cotton"],["Silk","Satin"],["Leather","Suede"],["Velvet","Tweed"],["Linen","Spandex"],
+    ["Fur","Feathers"],["Sequins","Rhinestones"],["Stripes","Plaid"],["Costume","Mask"],["Ski suit","Wetsuit"],
+    ["Tutu","Tulle"],["Corset","Bustier"],["Nightgown","Nightshirt"],["Toga","Tunic"],["Coveralls","High-visibility vest"],
+    ["Pleated skirt","Tartan"],["Christmas sweater","Fisherman sweater"],["Bandana","Headscarf"],["Judo belt","Karate gi"],["Soccer jersey","Cycling jersey"],
+    ["Swim trunks","Board shorts"],["Ski boots","Hiking boots"],["Cleats","Spikes"],["Dance shoes","Ballet slippers"],["School uniform","Smock"],
+    ["Hawaiian shirt","Flannel shirt"],["Hunting jacket","Fishing vest"],["Jewelry set","Costume jewelry"],["Pocket watch","Smartwatch"],["Earmuffs","Neck warmer"],
+    ["Maxi skirt","Maxi dress"],["Evening gown","Cocktail dress"],["Spacesuit","Hazmat suit"],["Pocket square","Handkerchief"],["Stiletto","Wedge heel"],
+    ["Wellies","Waders"]
+  ],
+  "Nature": [
+    ["Tree","Bush"],["Rose","Tulip"],["Sunset","Sunrise"],["Rainbow","Northern lights"],["Cloud","Fog"],
+    ["Wave","Tide"],["Sand","Pebble"],["Leaf","Petal"],["Waterfall","Fountain"],["Star","Planet"],
+    ["Lightning","Thunder"],["Glacier","Iceberg"],["Fir tree","Palm tree"],["Cactus","Aloe vera"],["Earthquake","Tsunami"],
+    ["Grass","Moss"],["Oak","Beech"],["Birch","Willow"],["Pine","Cedar"],["Maple","Plane tree"],
+    ["Baobab","Sequoia"],["Bamboo","Reed"],["Fern","Ivy"],["Root","Trunk"],["Branch","Twig"],
+    ["Acorn","Pine cone"],["Daisy","Buttercup"],["Sunflower","Poppy"],["Lavender","Rosemary"],["Lily of the valley","Lilac"],
+    ["Orchid","Lily"],["Dandelion","Clover"],["Bramble","Thorn"],["Water lily","Lotus"],["Seaweed","Coral"],
+    ["Seashell","Pearl"],["Boulder","Cobblestone"],["Summit","Ridge"],["Plain","Steppe"],["Stream","Brook"],
+    ["Pond","Puddle"],["Ocean","Sea"],["Bay","Gulf"],["Delta","Estuary"],["Coast","Shore"],
+    ["Avalanche","Landslide"],["Hurricane","Tornado"],["Cyclone","Typhoon"],["Hail","Black ice"],["Frost","Dew"],
+    ["Snowflake","Icicle"],["Breeze","Gust"],["Drought","Flood"],["Wildfire","Eruption"],["Lava","Magma"],
+    ["Crater","Chasm"],["Dust","Ash"],["Soil","Clay"],["Mud","Silt"],["Summer","Winter"],
+    ["Morning","Evening"],["Dawn","Dusk"],["Milky Way","Constellation"],["Comet","Shooting star"],["Sky","Horizon"],
+    ["Fruit","Seed"],["Bud","Flower"],["Pollen","Nectar"],["Sap","Resin"],["Wheat field","Cornfield"],
+    ["Rice paddy","Plantation"],["Taiga","Tundra"],["Ice floe","North Pole"],["Stalactite","Stalagmite"],["Diamond","Ruby"],
+    ["Gold","Silver"],["Iron","Copper"],["Oil","Coal"],["Granite","Limestone"],["Emerald","Sapphire"],
+    ["Rainforest","Pine forest"],["Spring water","Well"],["Desert island","Atoll"],["Clearing","Undergrowth"],["Cherry tree","Apple tree"],
+    ["Olive tree","Fig tree"],["Poplar","Linden"],["Magnolia","Camellia"],["Jasmine","Honeysuckle"],["Peony","Dahlia"],
+    ["Violet","Forget-me-not"],["Cornflower","Bluebell"],["Mistletoe","Holly"],["Plankton","Krill"],["Sea urchin","Sea cucumber"],
+    ["Low tide","High tide"],["Riverbank","Riverbed"],["Torrent","Rapids"],["Mountain pass","Peak"],["Will-o'-the-wisp","Ball lightning"]
+  ],
+  "Music & culture": [
+    ["Rock","Metal"],["Rap","Slam poetry"],["Opera","Musical"],["Orchestra","Marching band"],["Trumpet","Saxophone"],
+    ["Flute","Harmonica"],["Microphone","Speaker"],["Horror movie","Thriller"],["Cartoon","Anime"],["TV series","Soap opera"],
+    ["Novel","Comic book"],["Poem","Song"],["Sculpture","Statue"],["Painting","Poster"],["Podcast","Radio"],
+    ["Tattoo","Piercing"],["Magic trick","Hypnosis"],["Jazz","Blues"],["Reggae","Ska"],["Pop","Disco"],
+    ["Techno","House"],["Classical","Baroque"],["Country","Folk"],["Punk","Grunge"],["Funk","Soul"],
+    ["Gospel","Choir"],["Accordion","Organ"],["Cello","Double bass"],["Harp","Lyre"],["Banjo","Ukulele"],
+    ["Drum","Tambourine"],["Xylophone","Triangle"],["Clarinet","Oboe"],["Bagpipes","Fiddle"],["Synthesizer","Drum machine"],
+    ["Turntable","Vinyl record"],["CD","Cassette"],["Music video","Live show"],["Album","Single"],["Chorus","Verse"],
+    ["Note","Sheet music"],["Music theory","Conservatory"],["Hit","Cover"],["Backing singer","Soloist"],["Band","Duo"],
+    ["Tour","Opening act"],["Show","Revue"],["Play","One-man show"],["Stand-up comedy","Sketch"],["Puppets","Punch and Judy"],
+    ["Western","Swashbuckler"],["Science fiction","Fantasy novel"],["Comedy","Drama"],["Romantic comedy","Tearjerker"],["Documentary","Report"],
+    ["Short film","Feature film"],["Oscar","Golden Globe"],["Red carpet","Premiere"],["Special effects","Dubbing"],["Subtitles","Original version"],
+    ["Reality TV","Game show"],["News","Weather forecast"],["TV show","Talk show"],["Fairy tale","Fable"],["Legend","Myth"],
+    ["Crime novel","Whodunit"],["Biography","Autobiography"],["Dictionary","Encyclopedia"],["Newspaper","Gazette"],["Exhibition","Art opening"],
+    ["Graffiti","Street art"],["Fresco","Stained glass"],["Meme","GIF"],["Emoji","Sticker"],["Blog","Vlog"],
+    ["Hashtag","Trend"],["Console","Gaming PC"],["Car karaoke","Singing in the shower"],["National anthem","Football chant"],["Lullaby","Nursery rhyme"],
+    ["Slow dance","Waltz"],["Electric guitar","Bass guitar"],["Recorder","Piccolo"],["Cymbal","Gong"],["Maracas","Castanets"],
+    ["Operetta","Vaudeville"],["Quartet","Trio"],["Recital","Audition"],["Soundtrack","Film score"],["Gold record","Platinum record"],
+    ["Treble clef","Bass clef"],["Metronome","Tuning fork"],["Steel drum","Bongo"],["Street theater","Improv"],["Nobel Prize","Pulitzer Prize"],
+    ["Book club","Reading group"],["Film club","Drive-in"],["Rock opera","Symphony"],["Busker","One-man band"],["Encore","Standing ovation"]
+  ]
+};
+
+const DICTS = { fr: DICT_FR, en: DICT_EN };
+
+const I18N = {
+  fr: {
+    tagline: "Tout le monde a le même mot… sauf l'espion.",
+    tap: "Touche l'écran pour jouer",
+    players: "Joueurs", namePh: "Nom du joueur", add: "Ajouter", emptyPlayers: "Ajoute au moins 3 joueurs",
+    options: "Options", spies: "Espions", spiesHelp: "Nombre d'espions dans la partie",
+    spyGets: "L'espion reçoit", modeNone: "Rien", modeClose: "Mot proche",
+    modeHelpNone: "L'espion sait qu'il est espion",
+    modeHelpClose: "L'espion a un mot proche et ne sait pas qu'il est espion !",
+    timerLabel: "Chrono discussion", categories: "Catégories",
+    start: "Lancer la partie", resetScores: "Remettre les scores à zéro", changeLang: "Switch to English",
+    pts: n => `${n} pt${n > 1 ? "s" : ""}`,
+    playerN: (i, n) => `Joueur ${i} / ${n}`,
+    passTo: "Passe l'appareil à",
+    tapReveal: "Appuie ici pour voir ton mot<br>(sans que les autres regardent !)",
+    gotIt: "J'ai retenu, cacher et passer", gotItStart: "J'ai retenu, commencer !",
+    spyLabel: "ESPION", noWord: "Tu n'as pas de mot. Écoute les autres et devine le leur !", yourWord: "Ton mot est",
+    allSet: "Tout le monde a son mot !",
+    starts: name => `C'est <b style="color:var(--accent)">${name}</b> qui commence.`,
+    talkHint: "Chacun à son tour dit un mot ou une phrase en lien avec son mot secret, sans être trop précis… L'espion doit se fondre dans la masse !",
+    pause: "Pause", resume: "Reprendre", goVote: "Passer au vote",
+    whoSpy: "Qui est l'espion ?", voteHint: "Votez à voix haute, puis touchez le joueur éliminé.",
+    giveUp: "Abandonner et tout révéler",
+    wasSpy: "était un ESPION !",
+    lastChance: "Dernière chance : l'espion peut tenter de deviner le mot à voix haute. S'il trouve, les espions gagnent !",
+    notSpy: "n'était pas l'espion…", talkResumes: "La discussion reprend !",
+    spyFailed: "L'espion n'a pas trouvé → Civils gagnent", spyGuessed: "L'espion a deviné le mot → Espions gagnent",
+    seeResult: "Voir le résultat", continueTalk: "Continuer la discussion",
+    spiesWin: "Les espions gagnent !", spyWins: "L'espion gagne !", civsWin: "Les civils gagnent !",
+    civWord: "Mot des civils", spyWord: "Mot de l'espion", rolesScores: "Rôles & scores",
+    tagSpy: "Espion", tagCiv: "Civil", replay: "Rejouer", editPlayers: "Modifier les joueurs"
+  },
+  en: {
+    tagline: "Everyone has the same word… except the spy.",
+    tap: "Tap the screen to play",
+    players: "Players", namePh: "Player name", add: "Add", emptyPlayers: "Add at least 3 players",
+    options: "Options", spies: "Spies", spiesHelp: "Number of spies in the game",
+    spyGets: "The spy gets", modeNone: "Nothing", modeClose: "Similar word",
+    modeHelpNone: "The spy knows they are the spy",
+    modeHelpClose: "The spy gets a similar word and doesn't know they're the spy!",
+    timerLabel: "Discussion timer", categories: "Categories",
+    start: "Start game", resetScores: "Reset scores", changeLang: "Passer en français",
+    pts: n => `${n} pt${n !== 1 ? "s" : ""}`,
+    playerN: (i, n) => `Player ${i} / ${n}`,
+    passTo: "Pass the device to",
+    tapReveal: "Tap here to see your word<br>(don't let the others look!)",
+    gotIt: "Got it, hide and pass", gotItStart: "Got it, let's start!",
+    spyLabel: "SPY", noWord: "You have no word. Listen to the others and guess theirs!", yourWord: "Your word is",
+    allSet: "Everyone has their word!",
+    starts: name => `<b style="color:var(--accent)">${name}</b> goes first.`,
+    talkHint: "Taking turns, each player says a word or phrase related to their secret word, without being too obvious… The spy must blend in!",
+    pause: "Pause", resume: "Resume", goVote: "Go to vote",
+    whoSpy: "Who is the spy?", voteHint: "Vote out loud, then tap the eliminated player.",
+    giveUp: "Give up and reveal everything",
+    wasSpy: "was a SPY!",
+    lastChance: "Last chance: the spy may try to guess the word out loud. If they get it, the spies win!",
+    notSpy: "was not the spy…", talkResumes: "The discussion continues!",
+    spyFailed: "The spy didn't guess → Civilians win", spyGuessed: "The spy guessed the word → Spies win",
+    seeResult: "See the result", continueTalk: "Continue the discussion",
+    spiesWin: "The spies win!", spyWins: "The spy wins!", civsWin: "The civilians win!",
+    civWord: "Civilians' word", spyWord: "Spy's word", rolesScores: "Roles & scores",
+    tagSpy: "Spy", tagCiv: "Civilian", replay: "Play again", editPlayers: "Edit players"
+  }
+};
+
 const STORE_KEY = "suparespion.v1";
 const $ = id => document.getElementById(id);
 
@@ -562,19 +950,45 @@ const state = {
   spies: 1,
   mode: "none",         // "none" | "close"
   timer: 0,
-  cats: Object.keys(DICT),
+  lang: (navigator.language || "").toLowerCase().startsWith("fr") ? "fr" : "en",
+  catsByLang: {},       // catégories actives, par langue
   recent: []            // mots déjà joués récemment
 };
+const dict = () => DICTS[state.lang];
+const t = () => I18N[state.lang];
 let game = null;
 let timerInterval = null;
 
 function load() {
   try {
     const saved = JSON.parse(localStorage.getItem(STORE_KEY));
-    if (saved) Object.assign(state, saved);
+    if (saved) {
+      // Ancien format : une seule liste de catégories (françaises)
+      if (Array.isArray(saved.cats)) saved.catsByLang = { fr: saved.cats };
+      delete saved.cats;
+      Object.assign(state, saved);
+    }
   } catch (e) {}
-  state.cats = state.cats.filter(c => DICT[c]);
-  if (!state.cats.length) state.cats = Object.keys(DICT);
+  if (!DICTS[state.lang]) state.lang = "fr";
+  for (const lang in DICTS) {
+    const cats = (state.catsByLang[lang] || []).filter(c => DICTS[lang][c]);
+    state.catsByLang[lang] = cats.length ? cats : Object.keys(DICTS[lang]);
+  }
+}
+
+function activeCats() { return state.catsByLang[state.lang]; }
+
+function applyLang() {
+  document.documentElement.lang = state.lang;
+  document.querySelectorAll("[data-i18n]").forEach(el => el.textContent = t()[el.dataset.i18n]);
+  document.querySelectorAll("[data-i18n-ph]").forEach(el => el.placeholder = t()[el.dataset.i18nPh]);
+  document.querySelectorAll(".lang").forEach(b => b.classList.toggle("on", b.dataset.lang === state.lang));
+}
+
+function setLang(lang) {
+  state.lang = lang;
+  applyLang();
+  renderSetup();
 }
 function save() {
   try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {}
@@ -606,11 +1020,11 @@ function maxSpies() {
 function renderSetup() {
   const list = $("player-list");
   if (!state.players.length) {
-    list.innerHTML = '<li class="empty">Ajoute au moins 3 joueurs</li>';
+    list.innerHTML = `<li class="empty">${t().emptyPlayers}</li>`;
   } else {
     list.innerHTML = state.players.map((p, i) => `
       <li class="player">
-        <span class="name">${esc(p.name)}<span class="score">${p.score} pt${p.score > 1 ? "s" : ""}</span></span>
+        <span class="name">${esc(p.name)}<span class="score">${t().pts(p.score)}</span></span>
         <span>
           <button data-up="${i}" ${i === 0 ? "disabled" : ""}>▲</button>
           <button data-del="${i}">✕</button>
@@ -624,13 +1038,11 @@ function renderSetup() {
   $("spy-plus").disabled = state.spies >= maxSpies();
 
   document.querySelectorAll("#mode-seg button").forEach(b => b.classList.toggle("on", b.dataset.mode === state.mode));
-  $("mode-help").textContent = state.mode === "none"
-    ? "L'espion sait qu'il est espion"
-    : "L'espion a un mot proche et ne sait pas qu'il est espion !";
+  $("mode-help").textContent = state.mode === "none" ? t().modeHelpNone : t().modeHelpClose;
   document.querySelectorAll("#timer-seg button").forEach(b => b.classList.toggle("on", +b.dataset.t === state.timer));
 
-  $("cat-chips").innerHTML = Object.keys(DICT).map(c =>
-    `<button class="chip ${state.cats.includes(c) ? "on" : ""}" data-cat="${esc(c)}">${esc(c)}</button>`).join("");
+  $("cat-chips").innerHTML = Object.keys(dict()).map(c =>
+    `<button class="chip ${activeCats().includes(c) ? "on" : ""}" data-cat="${esc(c)}">${esc(c)}</button>`).join("");
 
   $("start-btn").disabled = state.players.length < 3;
   save();
@@ -666,11 +1078,11 @@ $("timer-seg").onclick = e => { const b = e.target.closest("button"); if (b) { s
 $("cat-chips").onclick = e => {
   const b = e.target.closest("[data-cat]");
   if (!b) return;
-  const c = b.dataset.cat;
-  if (state.cats.includes(c)) {
-    if (state.cats.length > 1) state.cats = state.cats.filter(x => x !== c);
+  const c = b.dataset.cat, cats = activeCats();
+  if (cats.includes(c)) {
+    if (cats.length > 1) state.catsByLang[state.lang] = cats.filter(x => x !== c);
   } else {
-    state.cats.push(c);
+    cats.push(c);
   }
   renderSetup();
 };
@@ -679,7 +1091,7 @@ $("reset-scores").onclick = () => { state.players.forEach(p => p.score = 0); ren
 // ---------- Partie ----------
 
 function pickPair() {
-  const pool = state.cats.flatMap(c => DICT[c]);
+  const pool = activeCats().flatMap(c => dict()[c]);
   let fresh = pool.filter(p => !state.recent.includes(p[0]));
   if (!fresh.length) { state.recent = []; fresh = pool; }
   const pair = fresh[Math.floor(Math.random() * fresh.length)].slice();
@@ -704,14 +1116,13 @@ function startGame() {
 
 function showDeal() {
   const p = game.roles[game.dealIdx];
-  $("deal-progress").textContent = `Joueur ${game.dealIdx + 1} / ${game.roles.length}`;
+  $("deal-progress").textContent = t().playerN(game.dealIdx + 1, game.roles.length);
   $("deal-name").textContent = p.name;
   const box = $("reveal-box");
   box.className = "reveal-box";
-  box.innerHTML = '<div class="hint">Appuie ici pour voir ton mot<br>(sans que les autres regardent !)</div>';
+  box.innerHTML = `<div class="hint">${t().tapReveal}</div>`;
   $("deal-next").style.visibility = "hidden";
-  $("deal-next").textContent = game.dealIdx === game.roles.length - 1
-    ? "J'ai retenu, commencer !" : "J'ai retenu, cacher et passer";
+  $("deal-next").textContent = game.dealIdx === game.roles.length - 1 ? t().gotItStart : t().gotIt;
   show("s-deal");
 }
 
@@ -722,11 +1133,11 @@ $("reveal-box").onclick = () => {
   box.classList.add("shown");
   if (p.spy && state.mode === "none") {
     box.classList.add("spy");
-    box.innerHTML = `<div class="spy-label">ESPION</div>
-      <div class="hint">Tu n'as pas de mot. Écoute les autres et devine le leur !</div>`;
+    box.innerHTML = `<div class="spy-label">${t().spyLabel}</div>
+      <div class="hint">${t().noWord}</div>`;
   } else {
     const w = p.spy ? game.spyWord : game.word;
-    box.innerHTML = `<div class="hint">Ton mot est</div><div class="word">${esc(w)}</div>`;
+    box.innerHTML = `<div class="hint">${t().yourWord}</div><div class="word">${esc(w)}</div>`;
   }
   $("deal-next").style.visibility = "visible";
 };
@@ -743,7 +1154,7 @@ function startTalk() {
   // En mode "sans mot", on évite que l'espion commence
   const alive = game.roles.filter(r => !r.out);
   const candidates = state.mode === "none" ? alive.filter(r => !r.spy) : alive;
-  $("first-player").textContent = candidates[Math.floor(Math.random() * candidates.length)].name;
+  $("first-player").innerHTML = t().starts(esc(candidates[Math.floor(Math.random() * candidates.length)].name));
   stopTimer();
   if (state.timer) {
     let left = state.timer, paused = false;
@@ -754,8 +1165,8 @@ function startTalk() {
     };
     draw();
     btn.style.display = "";
-    btn.textContent = "Pause";
-    btn.onclick = () => { paused = !paused; btn.textContent = paused ? "Reprendre" : "Pause"; };
+    btn.textContent = t().pause;
+    btn.onclick = () => { paused = !paused; btn.textContent = paused ? t().resume : t().pause; };
     timerInterval = setInterval(() => {
       if (paused || left <= 0) return;
       left--;
@@ -796,15 +1207,13 @@ $("vote-grid").onclick = e => {
   $("elim-name").textContent = r.name;
   const res = $("elim-result");
   if (r.spy) {
-    res.textContent = "était un ESPION !";
+    res.textContent = t().wasSpy;
     res.className = "result-title ok";
-    $("elim-hint").textContent = state.mode === "none"
-      ? "Dernière chance : l'espion peut tenter de deviner le mot à voix haute. S'il trouve, les espions gagnent !"
-      : "";
+    $("elim-hint").textContent = state.mode === "none" ? t().lastChance : "";
   } else {
-    res.textContent = "n'était pas l'espion…";
+    res.textContent = t().notSpy;
     res.className = "result-title spy";
-    $("elim-hint").textContent = spiesLeft >= civsLeft ? "" : "La discussion reprend !";
+    $("elim-hint").textContent = spiesLeft >= civsLeft ? "" : t().talkResumes;
   }
 
   let outcome = null;
@@ -815,22 +1224,22 @@ $("vote-grid").onclick = e => {
   next.className = "primary big";
   if (outcome === "civils" && state.mode === "none") {
     // L'espion démasqué peut voler la victoire en devinant le mot
-    next.textContent = "L'espion n'a pas trouvé → Civils gagnent";
+    next.textContent = t().spyFailed;
     next.onclick = () => endGame("civils");
     $("elim-extra")?.remove();
     const steal = document.createElement("button");
     steal.id = "elim-extra";
     steal.className = "danger big";
-    steal.textContent = "L'espion a deviné le mot → Espions gagnent";
+    steal.textContent = t().spyGuessed;
     steal.onclick = () => endGame("espions");
     next.after(steal);
   } else {
     $("elim-extra")?.remove();
     if (outcome) {
-      next.textContent = "Voir le résultat";
+      next.textContent = t().seeResult;
       next.onclick = () => endGame(outcome);
     } else {
-      next.textContent = "Continuer la discussion";
+      next.textContent = t().continueTalk;
       next.onclick = () => startTalk();
     }
   }
@@ -849,9 +1258,7 @@ function endGame(winner) {
   });
 
   const title = $("end-title");
-  title.textContent = spiesWin
-    ? (state.spies > 1 ? "Les espions gagnent !" : "L'espion gagne !")
-    : "Les civils gagnent !";
+  title.textContent = spiesWin ? (state.spies > 1 ? t().spiesWin : t().spyWins) : t().civsWin;
   title.className = "result-title " + (spiesWin ? "spy" : "ok");
   $("end-word").textContent = game.word;
   $("end-spyword-wrap").style.display = state.mode === "close" ? "" : "none";
@@ -859,8 +1266,8 @@ function endGame(winner) {
 
   $("end-list").innerHTML = game.roles.map((r, i) => `
     <li class="player">
-      <span class="name">${esc(r.name)}${r.spy ? '<span class="tag">Espion</span>' : '<span class="tag civ">Civil</span>'}</span>
-      <span class="score">${state.players[i].score} pt${state.players[i].score > 1 ? "s" : ""}</span>
+      <span class="name">${esc(r.name)}${r.spy ? `<span class="tag">${t().tagSpy}</span>` : `<span class="tag civ">${t().tagCiv}</span>`}</span>
+      <span class="score">${t().pts(state.players[i].score)}</span>
     </li>`).join("");
   save();
   show("s-end");
@@ -869,9 +1276,15 @@ function endGame(winner) {
 $("replay").onclick = startGame;
 $("back-setup").onclick = () => { renderSetup(); show("s-setup"); };
 $("start-btn").onclick = startGame;
-$("s-home").onclick = () => show("s-setup");
+$("s-home").onclick = e => {
+  const flag = e.target.closest("[data-lang]");
+  if (flag) setLang(flag.dataset.lang);
+  else show("s-setup");
+};
+$("change-lang").onclick = () => setLang(state.lang === "fr" ? "en" : "fr");
 
 load();
+applyLang();
 renderSetup();
 </script>
 </body>
