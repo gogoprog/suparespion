@@ -1,0 +1,851 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#14121f">
+<title>Supar Espion</title>
+<style>
+  :root {
+    --bg: #14121f;
+    --card: #211d33;
+    --card2: #2c2745;
+    --text: #f2f0fa;
+    --muted: #9a94b8;
+    --accent: #ffb547;
+    --spy: #ff4d6d;
+    --ok: #3ddc97;
+    --radius: 16px;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    display: flex; justify-content: center;
+    user-select: none;
+  }
+  #app { width: 100%; max-width: 480px; padding: 20px 16px 32px; display: flex; flex-direction: column; min-height: 100%; }
+  h1 { font-size: 2rem; margin: 8px 0 4px; text-align: center; letter-spacing: 1px; }
+  h1 span { color: var(--accent); }
+  h2 { font-size: 1.2rem; margin: 20px 0 10px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+  .subtitle { text-align: center; color: var(--muted); margin: 0 0 12px; }
+  .screen { display: none; flex-direction: column; flex: 1; }
+  .screen.active { display: flex; }
+  .card { background: var(--card); border-radius: var(--radius); padding: 16px; }
+  button {
+    font: inherit; border: 0; border-radius: 12px; cursor: pointer;
+    padding: 14px 18px; font-weight: 700; font-size: 1.05rem;
+    background: var(--card2); color: var(--text);
+    transition: transform .08s, opacity .2s;
+  }
+  button:active { transform: scale(.97); }
+  button:disabled { opacity: .4; cursor: default; }
+  .primary { background: var(--accent); color: #1a1400; }
+  .danger { background: var(--spy); color: #fff; }
+  .big { width: 100%; padding: 18px; font-size: 1.2rem; margin-top: 12px; }
+  .row { display: flex; gap: 8px; align-items: center; }
+  input[type=text] {
+    flex: 1; min-width: 0; font: inherit; font-size: 1.05rem; padding: 14px;
+    border-radius: 12px; border: 2px solid var(--card2); background: var(--bg); color: var(--text);
+    user-select: text;
+  }
+  input[type=text]:focus { outline: none; border-color: var(--accent); }
+  ul { list-style: none; padding: 0; margin: 12px 0 0; }
+  .player {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--card2); border-radius: 12px; padding: 10px 12px; margin-bottom: 8px;
+  }
+  .player .name { font-weight: 600; font-size: 1.05rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .player .score { color: var(--accent); font-size: .9rem; margin-left: 8px; }
+  .player button { padding: 6px 12px; font-size: .9rem; background: transparent; color: var(--muted); }
+  .empty { color: var(--muted); text-align: center; padding: 12px; }
+  .opt { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--card2); gap: 12px; }
+  .opt:last-child { border-bottom: 0; }
+  .opt small { display: block; color: var(--muted); font-weight: 400; }
+  .stepper { display: flex; align-items: center; gap: 10px; }
+  .stepper button { width: 40px; height: 40px; padding: 0; }
+  .stepper b { min-width: 24px; text-align: center; font-size: 1.2rem; }
+  .seg { display: flex; background: var(--bg); border-radius: 12px; padding: 4px; }
+  .seg button { padding: 8px 12px; font-size: .9rem; background: transparent; color: var(--muted); }
+  .seg button.on { background: var(--card2); color: var(--text); }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { padding: 8px 12px; font-size: .9rem; border-radius: 999px; background: var(--bg); color: var(--muted); border: 2px solid var(--card2); }
+  .chip.on { border-color: var(--accent); color: var(--text); }
+
+  .center { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; gap: 12px; }
+  .pass-name { font-size: 2.4rem; font-weight: 800; color: var(--accent); word-break: break-word; }
+  .reveal-box {
+    width: 100%; min-height: 220px; border-radius: 20px; background: var(--card);
+    display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 24px;
+    border: 3px dashed var(--card2);
+  }
+  .reveal-box.shown { border-style: solid; border-color: var(--accent); }
+  .reveal-box.spy { border-color: var(--spy); }
+  .word { font-size: 2.6rem; font-weight: 800; word-break: break-word; }
+  .spy-label { color: var(--spy); font-size: 2.4rem; font-weight: 900; letter-spacing: 2px; }
+  .hint { color: var(--muted); font-size: .95rem; }
+  .progress { color: var(--muted); text-align: center; margin-bottom: 8px; }
+  .timer { font-size: 4rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .timer.low { color: var(--spy); }
+
+  .vote-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .vote-grid button { padding: 18px 8px; word-break: break-word; }
+  .vote-grid button.out { opacity: .35; text-decoration: line-through; }
+  .result-title { font-size: 2rem; font-weight: 900; }
+  .result-title.spy { color: var(--spy); }
+  .result-title.ok { color: var(--ok); }
+  .tag { font-size: .8rem; padding: 3px 8px; border-radius: 999px; background: var(--spy); color: #fff; margin-left: 8px; }
+  .tag.civ { background: var(--card); color: var(--muted); }
+  .footer { margin-top: auto; padding-top: 16px; }
+  .link { background: transparent; color: var(--muted); font-weight: 500; font-size: .95rem; padding: 10px; width: 100%; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ACCUEIL / CONFIG -->
+  <section id="s-setup" class="screen active">
+    <h1>🕵️ Supar <span>Espion</span></h1>
+    <p class="subtitle">Tout le monde a le même mot… sauf l'espion.</p>
+
+    <h2>Joueurs</h2>
+    <div class="card">
+      <form id="add-form" class="row">
+        <input id="name-input" type="text" placeholder="Nom du joueur" maxlength="20" autocomplete="off">
+        <button class="primary" type="submit">Ajouter</button>
+      </form>
+      <ul id="player-list"></ul>
+    </div>
+
+    <h2>Options</h2>
+    <div class="card">
+      <div class="opt">
+        <div>Espions<small>Nombre d'espions dans la partie</small></div>
+        <div class="stepper">
+          <button id="spy-minus">−</button><b id="spy-count">1</b><button id="spy-plus">+</button>
+        </div>
+      </div>
+      <div class="opt">
+        <div>L'espion reçoit<small id="mode-help"></small></div>
+        <div class="seg" id="mode-seg">
+          <button data-mode="none">Rien</button>
+          <button data-mode="close">Mot proche</button>
+        </div>
+      </div>
+      <div class="opt">
+        <div>Chrono discussion</div>
+        <div class="seg" id="timer-seg">
+          <button data-t="0">Off</button>
+          <button data-t="180">3 min</button>
+          <button data-t="300">5 min</button>
+        </div>
+      </div>
+      <div class="opt" style="display:block">
+        <div style="margin-bottom:10px">Catégories</div>
+        <div class="chips" id="cat-chips"></div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <button id="start-btn" class="primary big">Lancer la partie</button>
+      <button id="reset-scores" class="link">Remettre les scores à zéro</button>
+    </div>
+  </section>
+
+  <!-- DISTRIBUTION -->
+  <section id="s-deal" class="screen">
+    <div class="progress" id="deal-progress"></div>
+    <div class="center">
+      <div class="hint">Passe l'appareil à</div>
+      <div class="pass-name" id="deal-name"></div>
+      <div class="reveal-box" id="reveal-box">
+        <div class="hint" id="reveal-hint">Appuie pour voir ton mot<br>(sans que les autres regardent !)</div>
+      </div>
+    </div>
+    <button id="deal-next" class="primary big" style="visibility:hidden">J'ai retenu, cacher et passer</button>
+  </section>
+
+  <!-- DISCUSSION -->
+  <section id="s-talk" class="screen">
+    <div class="center">
+      <div class="hint">Tout le monde a son mot !</div>
+      <div style="font-size:1.3rem">C'est <b id="first-player" style="color:var(--accent)"></b> qui commence.</div>
+      <div class="hint">Chacun à son tour dit un mot ou une phrase en lien avec son mot secret, sans être trop précis… L'espion doit se fondre dans la masse !</div>
+      <div class="timer" id="timer"></div>
+      <button id="timer-toggle" style="display:none">Pause</button>
+    </div>
+    <button id="go-vote" class="primary big">Passer au vote</button>
+  </section>
+
+  <!-- VOTE -->
+  <section id="s-vote" class="screen">
+    <h2 style="text-align:center">Qui est l'espion ?</h2>
+    <p class="subtitle">Votez à voix haute, puis touchez le joueur éliminé.</p>
+    <div class="vote-grid" id="vote-grid"></div>
+    <div class="footer">
+      <button id="reveal-all" class="link">Abandonner et tout révéler</button>
+    </div>
+  </section>
+
+  <!-- RÉSULTAT ÉLIMINATION -->
+  <section id="s-elim" class="screen">
+    <div class="center">
+      <div class="pass-name" id="elim-name"></div>
+      <div class="result-title" id="elim-result"></div>
+      <div class="hint" id="elim-hint"></div>
+    </div>
+    <button id="elim-next" class="primary big">Continuer</button>
+  </section>
+
+  <!-- FIN -->
+  <section id="s-end" class="screen">
+    <div class="center" style="flex:0; padding-top:24px">
+      <div class="result-title" id="end-title"></div>
+      <div class="card" style="width:100%">
+        <div class="hint">Mot des civils</div>
+        <div class="word" id="end-word" style="font-size:2rem"></div>
+        <div id="end-spyword-wrap" style="margin-top:10px">
+          <div class="hint">Mot de l'espion</div>
+          <div class="word" id="end-spyword" style="font-size:1.6rem; color:var(--spy)"></div>
+        </div>
+      </div>
+    </div>
+    <h2>Rôles &amp; scores</h2>
+    <ul id="end-list"></ul>
+    <div class="footer">
+      <button id="replay" class="primary big">Rejouer</button>
+      <button id="back-setup" class="link">Modifier les joueurs</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+// Paires de mots proches : [mot des civils, mot proche pour l'espion]
+const DICT = {
+  "Nourriture": [
+    ["Pizza","Tarte flambée"],["Croissant","Pain au chocolat"],["Fromage","Beurre"],["Sushi","Maki"],["Hamburger","Sandwich"],
+    ["Crêpe","Gaufre"],["Chocolat","Caramel"],["Pomme","Poire"],["Fraise","Framboise"],["Raclette","Fondue"],
+    ["Spaghetti","Lasagnes"],["Frites","Chips"],["Glace","Sorbet"],["Baguette","Brioche"],["Café","Thé"],
+    ["Vin","Bière"],["Soupe","Purée"],["Tomate","Poivron"],["Banane","Mangue"],["Couscous","Paella"],
+    ["Œuf","Omelette"],["Citron","Orange"],["Miel","Confiture"],["Popcorn","Barbe à papa"],["Kebab","Tacos"],
+    ["Carotte","Radis"],["Riz","Pâtes"],["Steak","Côtelette"],["Saucisson","Jambon"],["Yaourt","Crème dessert"],
+    ["Cerise","Prune"],["Pastèque","Melon"],["Champignon","Truffe"],["Ketchup","Moutarde"],["Bonbon","Sucette"],
+    ["Macaron","Meringue"],["Quiche","Tarte salée"],["Huître","Moule"],["Crevette","Homard"],["Ananas","Noix de coco"],
+    ["Cookie","Muffin"],["Jus d'orange","Limonade"],["Champagne","Cidre"],["Salade","Taboulé"],["Chou-fleur","Brocoli"],
+    ["Kiwi","Litchi"],["Raisin","Groseille"],["Myrtille","Mûre"],["Clémentine","Mandarine"],["Pamplemousse","Citron vert"],
+    ["Figue","Datte"],["Concombre","Courgette"],["Aubergine","Potiron"],["Oignon","Ail"],["Poireau","Céleri"],
+    ["Petit pois","Haricot vert"],["Lentille","Pois chiche"],["Maïs","Blé"],["Pomme de terre","Patate douce"],["Épinard","Laitue"],
+    ["Noisette","Amande"],["Cacahuète","Pistache"],["Noix","Châtaigne"],["Poulet","Dinde"],["Saumon","Thon"],
+    ["Sardine","Anchois"],["Lardon","Bacon"],["Merguez","Chipolata"],["Pot-au-feu","Bœuf bourguignon"],["Cassoulet","Choucroute"],
+    ["Ratatouille","Gratin"],["Hachis parmentier","Moussaka"],["Croque-monsieur","Panini"],["Hot-dog","Burrito"],["Nems","Samoussa"],
+    ["Ramen","Pho"],["Curry","Chili con carne"],["Risotto","Gnocchi"],["Ravioli","Tortellini"],["Camembert","Brie"],
+    ["Emmental","Comté"],["Mozzarella","Burrata"],["Lait","Crème fraîche"],["Chantilly","Mousse au chocolat"],["Tiramisu","Charlotte"],
+    ["Mille-feuille","Paris-Brest"],["Tarte Tatin","Crumble"],["Flan","Crème brûlée"],["Donut","Beignet"],["Pancake","Pain perdu"],
+    ["Céréales","Muesli"],["Pain d'épices","Biscotte"],["Tartine","Toast"],["Sel","Poivre"],["Sucre","Édulcorant"],
+    ["Vinaigre","Huile d'olive"],["Mayonnaise","Vinaigrette"],["Pesto","Sauce tomate"],["Cornichon","Olive"],["Smoothie","Milkshake"],
+    ["Soda","Eau gazeuse"],["Whisky","Rhum"],["Vodka","Tequila"],["Cocktail","Apéritif"],["Expresso","Latte"],
+    ["Chocolat chaud","Cappuccino"],["Gâteau d'anniversaire","Bûche de Noël"],["Galette des rois","Couronne briochée"],["Foie gras","Pâté"],["Bretzel","Bagel"],
+    ["Wrap","Fajitas"],["Tapas","Antipasti"],["Caviar","Œufs de saumon"],["Calamar","Seiche"]
+  ],
+  "Animaux": [
+    ["Chien","Loup"],["Chat","Tigre"],["Lion","Panthère"],["Dauphin","Requin"],["Cheval","Âne"],
+    ["Aigle","Faucon"],["Abeille","Guêpe"],["Grenouille","Crapaud"],["Souris","Hamster"],["Vache","Taureau"],
+    ["Pingouin","Mouette"],["Serpent","Lézard"],["Papillon","Libellule"],["Ours","Panda"],["Singe","Gorille"],
+    ["Poule","Canard"],["Escargot","Limace"],["Lapin","Lièvre"],["Baleine","Orque"],["Éléphant","Rhinocéros"],
+    ["Hibou","Chouette"],["Araignée","Scorpion"],["Girafe","Zèbre"],["Crocodile","Alligator"],["Kangourou","Koala"],
+    ["Renard","Blaireau"],["Mouton","Chèvre"],["Cochon","Sanglier"],["Moustique","Mouche"],["Fourmi","Termite"],
+    ["Tortue","Escargot de mer"],["Perroquet","Toucan"],["Pieuvre","Méduse"],["Écureuil","Castor"],["Chameau","Dromadaire"],
+    ["Cerf","Élan"],["Poisson rouge","Carpe"],["Phoque","Morse"],["Coccinelle","Scarabée"],["Hérisson","Porc-épic"],
+    ["Hippopotame","Tapir"],["Guépard","Léopard"],["Hyène","Chacal"],["Jaguar","Puma"],["Lynx","Ocelot"],
+    ["Bison","Buffle"],["Lama","Alpaga"],["Gazelle","Antilope"],["Chimpanzé","Orang-outan"],["Lémurien","Paresseux"],
+    ["Tatou","Fourmilier"],["Loutre","Vison"],["Taupe","Musaraigne"],["Rat","Mulot"],["Chauve-souris","Hirondelle"],
+    ["Pigeon","Corbeau"],["Moineau","Rouge-gorge"],["Pie","Geai"],["Cygne","Oie"],["Flamant rose","Héron"],
+    ["Paon","Faisan"],["Autruche","Émeu"],["Vautour","Condor"],["Colibri","Mésange"],["Pélican","Albatros"],
+    ["Coq","Poussin"],["Truite","Brochet"],["Raie","Espadon"],["Hippocampe","Étoile de mer"],["Crabe","Langouste"],
+    ["Anguille","Murène"],["Piranha","Barracuda"],["Iguane","Caméléon"],["Cobra","Vipère"],["Python","Boa"],
+    ["Salamandre","Triton"],["Sauterelle","Criquet"],["Grillon","Cigale"],["Chenille","Ver de terre"],["Mille-pattes","Cloporte"],
+    ["Puce","Tique"],["Frelon","Bourdon"],["Mante religieuse","Phasme"],["Luciole","Ver luisant"],["Poney","Mule"],
+    ["Agneau","Bélier"],["Chiot","Chaton"],["Furet","Belette"],["Cochon d'Inde","Lapin nain"],["Raton laveur","Mouffette"],
+    ["Ornithorynque","Wombat"],["Yack","Bœuf musqué"],["Otarie","Lion de mer"],["Narval","Béluga"],["Manchot","Macareux"],
+    ["Mammouth","Tigre à dents de sabre"],["Têtard","Alevin"],["Dinde sauvage","Pintade"],["Gnou","Okapi"],["Suricate","Mangouste"]
+  ],
+  "Lieux": [
+    ["Plage","Piscine"],["Montagne","Colline"],["École","Université"],["Hôpital","Pharmacie"],["Cinéma","Théâtre"],
+    ["Restaurant","Cantine"],["Aéroport","Gare"],["Supermarché","Marché"],["Bibliothèque","Librairie"],["Église","Château"],
+    ["Prison","Commissariat"],["Forêt","Jungle"],["Désert","Savane"],["Musée","Galerie d'art"],["Zoo","Ferme"],
+    ["Boulangerie","Pâtisserie"],["Discothèque","Bar"],["Stade","Gymnase"],["Hôtel","Camping"],["Île","Presqu'île"],
+    ["Paris","Londres"],["Lune","Mars"],["Métro","Tramway"],["Banque","Poste"],["Mairie","Tribunal"],
+    ["Parking","Garage"],["Phare","Port"],["Grotte","Mine"],["Parc d'attractions","Fête foraine"],["Cirque","Cabaret"],
+    ["Spa","Sauna"],["Salle de sport","Piscine municipale"],["Cave","Grenier"],["Cuisine","Salle à manger"],["Salle de bain","Toilettes"],
+    ["Station de ski","Chalet"],["Volcan","Geyser"],["Lac","Rivière"],["Cimetière","Crypte"],["Usine","Entrepôt"],
+    ["Bureau","Open space"],["Pizzeria","Crêperie"],["Fast-food","Food truck"],["Salon de coiffure","Institut de beauté"],["Pressing","Laverie"],
+    ["Station-service","Péage"],["Autoroute","Nationale"],["Pont","Tunnel"],["Rond-point","Carrefour"],["Place du village","Kiosque"],
+    ["Jardin","Potager"],["Balcon","Terrasse"],["Chambre","Dortoir"],["Salon","Véranda"],["Couloir","Escalier"],
+    ["Toit","Cheminée"],["Sous-sol","Bunker"],["Igloo","Cabane"],["Tente","Yourte"],["Gratte-ciel","Tour Eiffel"],
+    ["Pyramide","Temple"],["Colisée","Arène"],["Mosquée","Synagogue"],["Monastère","Abbaye"],["Palais","Villa"],
+    ["Moulin","Grange"],["Vignoble","Verger"],["Champ","Prairie"],["Marais","Mangrove"],["Falaise","Dune"],
+    ["Récif","Lagon"],["Oasis","Canyon"],["Vallée","Plateau"],["Base militaire","Caserne"],["Ambassade","Consulat"],
+    ["Laboratoire","Observatoire"],["Studio de télé","Plateau de tournage"],["Salle de concert","Auditorium"],["Casino","Salle de jeux"],["Aquarium","Delphinarium"],
+    ["Station spatiale","Base lunaire"],["Crèche","Maternelle"],["Lycée","Collège"],["Internat","Colonie de vacances"],["Maison de retraite","Clinique"],
+    ["Cabinet médical","Urgences"],["Centre commercial","Galerie marchande"],["Cybercafé","Salle d'arcade"],["Quai","Ponton"],["Aire d'autoroute","Relais routier"],
+    ["Rome","Madrid"],["New York","Los Angeles"],["Tokyo","Pékin"],["Venise","Amsterdam"],["Marseille","Nice"],
+    ["Lyon","Bordeaux"],["Italie","Espagne"],["Brésil","Argentine"],["Canada","États-Unis"],["Australie","Nouvelle-Zélande"],
+    ["Allemagne","Autriche"],["Belgique","Suisse"],["Norvège","Suède"],["Inde","Thaïlande"],["Mexique","Pérou"],
+    ["Grèce","Turquie"],["Écosse","Irlande"],["Égypte","Maroc"]
+  ],
+  "Objets": [
+    ["Téléphone","Tablette"],["Stylo","Crayon"],["Chaise","Tabouret"],["Lit","Canapé"],["Parapluie","Imperméable"],
+    ["Montre","Bracelet"],["Lunettes","Jumelles"],["Clé","Cadenas"],["Ciseaux","Couteau"],["Bougie","Lampe"],
+    ["Miroir","Fenêtre"],["Valise","Sac à dos"],["Brosse à dents","Peigne"],["Oreiller","Couette"],["Frigo","Congélateur"],
+    ["Télévision","Ordinateur"],["Guitare","Violon"],["Piano","Batterie"],["Ballon","Frisbee"],["Livre","Magazine"],
+    ["Chaussette","Gant"],["Casquette","Chapeau"],["Bouteille","Verre"],["Marteau","Tournevis"],["Fourchette","Cuillère"],
+    ["Assiette","Bol"],["Casserole","Poêle"],["Aspirateur","Balai"],["Sèche-cheveux","Fer à lisser"],["Appareil photo","Caméra"],
+    ["Casque audio","Écouteurs"],["Télécommande","Manette"],["Agenda","Calendrier"],["Enveloppe","Carte postale"],["Gomme","Taille-crayon"],
+    ["Tapis","Paillasson"],["Horloge","Sablier"],["Échelle","Escabeau"],["Boussole","Carte"],["Portefeuille","Porte-monnaie"],
+    ["Coussin","Plaid"],["Rideau","Store"],["Étagère","Armoire"],["Commode","Tiroir"],["Table","Comptoir"],
+    ["Lampadaire","Lustre"],["Prise","Rallonge"],["Chargeur","Câble"],["Clé USB","Disque dur"],["Imprimante","Scanner"],
+    ["Clavier","Écran"],["Ventilateur","Climatiseur"],["Radiateur","Poêle à bois"],["Four","Micro-ondes"],["Grille-pain","Bouilloire"],
+    ["Cafetière","Théière"],["Mixeur","Robot pâtissier"],["Lave-linge","Sèche-linge"],["Lave-vaisselle","Évier"],["Poubelle","Seau"],
+    ["Éponge","Serpillière"],["Savon","Shampoing"],["Dentifrice","Fil dentaire"],["Rasoir","Tondeuse"],["Parfum","Déodorant"],
+    ["Rouge à lèvres","Vernis à ongles"],["Serviette","Gant de toilette"],["Couteau suisse","Canif"],["Lampe torche","Lanterne"],["Briquet","Allumette"],
+    ["Corde","Ficelle"],["Scotch","Colle"],["Agrafeuse","Trombone"],["Règle","Compas"],["Cahier","Carnet"],
+    ["Trousse","Cartable"],["Craie","Feutre"],["Calculatrice","Boulier"],["Globe","Atlas"],["Dé","Carte à jouer"],
+    ["Peluche","Poupée"],["Cube","Toupie"],["Yo-yo","Bilboquet"],["Cerf-volant","Boomerang"],["Balançoire","Toboggan"],
+    ["Trampoline","Château gonflable"],["Arrosoir","Tuyau d'arrosage"],["Pelle","Râteau"],["Brouette","Diable"],["Perceuse","Scie"],
+    ["Clou","Vis"],["Cintre","Porte-manteau"],["Ombrelle","Éventail"],["Sifflet","Klaxon"],["Aimant","Ressort"],
+    ["Boîte","Carton"],["Panier","Cabas"],["Thermomètre","Baromètre"],["Loupe","Microscope"],["Télescope","Longue-vue"],
+    ["Drapeau","Banderole"],["Trophée","Médaille"],["Tirelire","Coffre-fort"],["Sonnette","Interphone"]
+  ],
+  "Transports": [
+    ["Voiture","Camion"],["Vélo","Trottinette"],["Avion","Hélicoptère"],["Bateau","Sous-marin"],["Train","TGV"],
+    ["Moto","Scooter"],["Bus","Car"],["Fusée","Navette spatiale"],["Taxi","Uber"],["Skateboard","Rollers"],
+    ["Montgolfière","Parachute"],["Tracteur","Bulldozer"],["Ambulance","Camion de pompiers"],["Kayak","Canoë"],["Voilier","Yacht"],
+    ["Téléphérique","Télésiège"],["Calèche","Charrette"],["Jet-ski","Hors-bord"],["Limousine","Cabriolet"],["Ascenseur","Escalator"],
+    ["Camping-car","Caravane"],["Planeur","Deltaplane"],["Voiture de course","Kart"],["Formule 1","Rallye"],["Quad","Buggy"],
+    ["Side-car","Mobylette"],["Tandem","Monocycle"],["Vélo électrique","Gyroroue"],["Hoverboard","Gyropode"],["Tuk-tuk","Rickshaw"],
+    ["Gondole","Pédalo"],["Paquebot","Ferry"],["Péniche","Barge"],["Radeau","Barque"],["Catamaran","Trimaran"],
+    ["Remorqueur","Cargo"],["Porte-avions","Frégate"],["Aéroglisseur","Hydravion"],["Dirigeable","ULM"],["Avion de chasse","Bombardier"],
+    ["Jet privé","Avion de ligne"],["Drone","Avion télécommandé"],["Satellite","Sonde spatiale"],["Soucoupe volante","Vaisseau spatial"],["Char d'assaut","Blindé"],
+    ["Jeep","4x4"],["SUV","Monospace"],["Pick-up","Fourgonnette"],["Semi-remorque","Camion-citerne"],["Bétonnière","Grue"],
+    ["Dépanneuse","Camion poubelle"],["Corbillard","Fourgon"],["Voiture de police","Moto de police"],["Bus scolaire","Bus à impériale"],["Navette","Minibus"],
+    ["Funiculaire","Train à crémaillère"],["Monorail","Train magnétique"],["Train de nuit","Wagon-lit"],["Locomotive à vapeur","Draisine"],["RER","Train de banlieue"],
+    ["Traîneau","Luge"],["Motoneige","Dameuse"],["Bobsleigh","Skeleton"],["Carrosse","Diligence"],["Chariot","Caddie"],
+    ["Poussette","Landau"],["Fauteuil roulant","Déambulateur"],["Voiture électrique","Voiture hybride"],["Covoiturage","Autostop"],["Bateau-mouche","Vedette"],
+    ["Pirogue","Sampan"],["Galère","Drakkar"],["Caravelle","Galion"],["Paddle","Bodyboard"],["Tyrolienne","Télécabine"],
+    ["Téléski","Télésiège à bulle"],["Jetpack","Cape volante"],["Bathyscaphe","Scaphandre"],["Trottinette électrique","Monoroue"],["Camion de glaces","Camion de déménagement"],
+    ["Brise-glace","Chalutier"],["Bateau pirate","Bateau de pêche"],["Vélib","Vélo-taxi"],["Navette autonome","Voiture sans permis"],["Autocar de tourisme","Bus de nuit"],
+    ["Moto-cross","Trial"],["Vélo de course","Vélo de ville"],["Scooter des mers","Bouée tractée"],["Hélicoptère de secours","Avion bombardier d'eau"],["Taxi jaune","Taxi londonien"],
+    ["Ballon dirigeable","Montgolfière captive"],["Métro aérien","Métro souterrain"],["Voiture de collection","Voiture de sport"],["Roulotte","Chariot bâché"],["Barque de pêche","Canot pneumatique"],
+    ["Canot de sauvetage","Gilet de sauvetage"],["Avion en papier","Planeur en bois"],["Petit train touristique","Train fantôme"],["Charrette à bras","Chariot élévateur"],["Tank","Half-track"],
+    ["Navette spatiale réutilisable","Capsule spatiale"],["Véhicule de chantier","Pelleteuse"],["Bus électrique","Trolleybus"],["Vélo cargo","Triporteur"]
+  ],
+  "Métiers": [
+    ["Médecin","Infirmier"],["Policier","Gendarme"],["Pompier","Secouriste"],["Professeur","Directeur"],["Boulanger","Pâtissier"],
+    ["Cuisinier","Serveur"],["Pilote","Hôtesse de l'air"],["Avocat","Juge"],["Coiffeur","Esthéticien"],["Plombier","Électricien"],
+    ["Chanteur","Musicien"],["Acteur","Réalisateur"],["Astronaute","Pilote de chasse"],["Dentiste","Chirurgien"],["Facteur","Livreur"],
+    ["Agriculteur","Jardinier"],["Vétérinaire","Dresseur"],["Journaliste","Écrivain"],["Architecte","Maçon"],["Banquier","Comptable"],
+    ["Boucher","Poissonnier"],["Photographe","Peintre"],["Mécanicien","Garagiste"],["Militaire","Garde du corps"],["Caissier","Vendeur"],
+    ["Informaticien","Hacker"],["Magicien de rue","Clown"],["Psychologue","Coach"],["Détective","Espion"],["Président","Roi"],
+    ["Notaire","Huissier"],["Pharmacien","Opticien"],["Kiné","Ostéopathe"],["Sage-femme","Pédiatre"],["Ambulancier","Brancardier"],
+    ["Fleuriste","Paysagiste"],["Charpentier","Menuisier"],["Peintre en bâtiment","Carreleur"],["Serrurier","Vitrier"],["Couvreur","Ramoneur"],
+    ["Chauffeur de taxi","Chauffeur routier"],["Conducteur de bus","Conducteur de train"],["Capitaine","Matelot"],["Contrôleur aérien","Steward"],["Douanier","Agent de sécurité"],
+    ["Vigile","Videur"],["Pompiste","Péagiste"],["Éboueur","Balayeur"],["Concierge","Gardien"],["Agent d'entretien","Laveur de vitres"],
+    ["Baby-sitter","Nounou"],["Animateur","Moniteur"],["Prof de sport","Entraîneur"],["Arbitre","Commentateur"],["Footballeur","Rugbyman"],
+    ["DJ","Producteur"],["Danseur","Chorégraphe"],["Mannequin","Styliste"],["Tailleur","Cordonnier"],["Bijoutier","Horloger"],
+    ["Sommelier","Barman"],["Chef étoilé","Traiteur"],["Fromager","Crémier"],["Caviste","Brasseur"],["Vigneron","Apiculteur"],
+    ["Pêcheur","Berger"],["Bûcheron","Garde forestier"],["Scientifique","Chercheur"],["Chimiste","Biologiste"],["Astronome","Astrologue"],
+    ["Archéologue","Paléontologue"],["Historien","Guide touristique"],["Bibliothécaire","Libraire"],["Traducteur","Interprète"],["Secrétaire","Assistant"],
+    ["Manager","Patron"],["Agent immobilier","Promoteur"],["Assureur","Conseiller financier"],["Trader","Courtier"],["Député","Maire"],
+    ["Ministre","Ambassadeur"],["Préfet","Sénateur"],["Soldat","Légionnaire"],["Pilote de course","Cascadeur"],["Moine","Prêtre"],
+    ["Imam","Rabbin"],["Streamer","Gamer"],["Développeur","Designer"],["Graphiste","Illustrateur"],["Dessinateur BD","Caricaturiste"],
+    ["Sculpteur","Potier"],["Prof de piano","Chef d'orchestre"],["Ventriloque","Mime"],["Jongleur","Acrobate"],["Dompteur","Funambule"],
+    ["Sauveteur","Maître-nageur"],["Plongeur","Scaphandrier"],["Pizzaïolo","Crêpier"],["Charcutier","Volailler"],["Manucure","Maquilleur"],
+    ["Tatoueur","Perceur"]
+  ],
+  "Sports & loisirs": [
+    ["Football","Rugby"],["Tennis","Badminton"],["Natation","Plongée"],["Ski","Snowboard"],["Basket","Handball"],
+    ["Judo","Karaté"],["Golf","Mini-golf"],["Échecs","Dames"],["Boxe","Catch"],["Surf","Planche à voile"],
+    ["Danse","Gymnastique"],["Pêche","Chasse"],["Bowling","Pétanque"],["Poker","Belote"],["Yoga","Méditation"],
+    ["Escalade","Randonnée"],["Volley","Beach-volley"],["Cyclisme","VTT"],["Marathon","Sprint"],["Escrime","Tir à l'arc"],
+    ["Équitation","Polo"],["Patinage","Hockey sur glace"],["Ping-pong","Squash"],["Jeux vidéo","Jeux de société"],["Puzzle","Mots croisés"],
+    ["Karaoké","Blind test"],["Lecture","Écriture"],["Tricot","Couture"],["Cuisiner","Pâtisser"],["Jardinage","Bricolage"],
+    ["Paintball","Laser game"],["Billard","Fléchettes"],["Baseball","Cricket"],["Football américain","Rugby à 7"],["Water-polo","Plongeon"],
+    ["Aviron","Canoë-kayak"],["Triathlon","Biathlon"],["Saut en hauteur","Saut à la perche"],["Lancer de javelot","Lancer de poids"],["Haltérophilie","Musculation"],
+    ["Fitness","Aérobic"],["Pilates","Stretching"],["Taekwondo","Kung-fu"],["Lutte","Sumo"],["MMA","Kickboxing"],
+    ["Parkour","Slackline"],["BMX","Motocross"],["Skate","Trottinette freestyle"],["Kitesurf","Parapente"],["Saut à l'élastique","Saut en parachute"],
+    ["Spéléologie","Canyoning"],["Rafting","Hydrospeed"],["Ski de fond","Raquettes"],["Curling","Palet"],["Hockey sur gazon","Lacrosse"],
+    ["Course d'orientation","Chasse au trésor"],["Escape game","Murder party"],["Bridge","Tarot"],["Sudoku","Mots fléchés"],["Casse-tête","Énigme"],
+    ["Origami","Scrapbooking"],["Aquarelle","Peinture à l'huile"],["Dessin","Coloriage"],["Poterie","Mosaïque"],["Photographie","Vidéo amateur"],
+    ["Collection de timbres","Collection de pièces"],["Modélisme","Maquette"],["Bronzage","Baignade"],["Cache-cache","Chat perché"],["Marelle","Corde à sauter"],
+    ["Billes","Osselets"],["Loto","Bingo"],["Tombola","Loterie"],["Pari sportif","Tiercé"],["Course hippique","Rodéo"],
+    ["Tour de France","Jeux olympiques"],["Coupe du monde","Ligue des champions"],["Danse classique","Danse contemporaine"],["Salsa","Tango"],["Breakdance","Hip-hop"],
+    ["Snorkeling","Apnée"],["Voile","Croisière"],["Chasse sous-marine","Pêche à la ligne"],["Observation des oiseaux","Astronomie amateur"],["Tir","Ball-trap"],
+    ["Ski nautique","Wakeboard"],["Course à pied","Marche nordique"],["Roller derby","Patinage artistique"],["Handisport","Paralympiques"],["Marathon de danse","Battle"],
+    ["Pêche à la mouche","Pêche au gros"],["Chasse aux œufs","Chasse au trésor de Pâques"],["Belote coinchée","Rami"],["Jeu de l'oie","Petits chevaux"],["Dominos","Mikado"],
+    ["Bataille navale","Puissance 4"],["Pierre-feuille-ciseaux","Pile ou face"],["Ping-pong de table","Baby-foot"],["Air hockey","Flipper"],["Saut à la corde","Hula hoop"],
+    ["Escrime sportive","Sabre"],["Plongée en apnée","Plongée bouteille"]
+  ],
+  "Vie quotidienne": [
+    ["Anniversaire","Mariage"],["Noël","Nouvel An"],["Halloween","Carnaval"],["Vacances","Week-end"],["Douche","Bain"],
+    ["Petit-déjeuner","Brunch"],["Sieste","Nuit"],["Réveil","Alarme"],["Selfie","Photo de groupe"],["Pique-nique","Barbecue"],
+    ["Concert","Festival"],["Embouteillage","Travaux"],["Pluie","Neige"],["Soleil","Canicule"],["Orage","Tempête"],
+    ["Rhume","Grippe"],["Lundi","Vendredi"],["Rentrée","Examen"],["Déménagement","Emménagement"],["Rendez-vous","Entretien d'embauche"],
+    ["Lessive","Repassage"],["Vaisselle","Ménage"],["Courses","Shopping"],["Dispute","Réconciliation"],["Bébé","Enfant"],
+    ["Grand-mère","Tante"],["Voisin","Colocataire"],["Mal de tête","Mal de dos"],["Cauchemar","Rêve"],["Retard","Panne de réveil"],
+    ["Cadeau","Surprise"],["Pourboire","Monnaie"],["Pâques","Saint-Valentin"],["Fête des mères","Fête des pères"],["14 juillet","Feu d'artifice"],
+    ["Baptême","Communion"],["Enterrement","Deuil"],["Divorce","Séparation"],["Fiançailles","Demande en mariage"],["Naissance","Grossesse"],
+    ["Crémaillère","Soirée pyjama"],["Apéro","Goûter"],["Dîner","Souper"],["Gueule de bois","Fatigue"],["Insomnie","Somnambulisme"],
+    ["Grève","Manifestation"],["Élections","Référendum"],["Impôts","Factures"],["Loyer","Crédit"],["Salaire","Prime"],
+    ["Chômage","Retraite"],["Télétravail","Réunion"],["Pause café","Pause déjeuner"],["Heures sup","Astreinte"],["Code PIN","Mot de passe"],
+    ["SMS","Mail"],["Appel vidéo","Message vocal"],["Réseaux sociaux","Forum"],["Like","Commentaire"],["Wi-Fi","4G"],
+    ["Batterie vide","Écran cassé"],["Mise à jour","Bug"],["Pneu crevé","Panne d'essence"],["Contravention","Radar"],["Permis de conduire","Code de la route"],
+    ["Passeport","Carte d'identité"],["Jet lag","Escale"],["Coup de soleil","Insolation"],["Piqûre de moustique","Ortie"],["Allergie","Asthme"],
+    ["Repas de famille","Réveillon"],["Bisou","Câlin"],["Poignée de main","Accolade"],["Clin d'œil","Sourire"],["Fou rire","Larmes"],
+    ["Colère","Jalousie"],["Peur","Stress"],["Ennui","Flemme"],["Rangement","Tri sélectif"],["Recyclage","Compost"],
+    ["Promenade du chien","Litière du chat"],["Brossage de dents","Rasage"],["Maquillage","Coiffure"],["Bal","Boum"],["Soldes","Black Friday"],
+    ["Promo","Coupon de réduction"],["Livraison","Colis"],["Ticket de métro","Abonnement"],["Bouchon","Heure de pointe"],["Alarme incendie","Coupure de courant"],
+    ["Clés perdues","Porte claquée"],["Réveil difficile","Grasse matinée"],["Embouteillage du matin","Métro bondé"],["File d'attente","Salle d'attente"],["Machine à café","Fontaine à eau"],
+    ["Anniversaire surprise","Fête costumée"],["Premier rendez-vous","Coup de foudre"],["Première dent","Premiers pas"],["Vide-grenier","Brocante"],["Liste de courses","Pense-bête"],
+    ["Voyage scolaire","Classe verte"],["Bulletin de notes","Conseil de classe"]
+  ],
+  "Fantastique": [
+    ["Vampire","Loup-garou"],["Sorcière","Magicien"],["Dragon","Dinosaure"],["Fantôme","Zombie"],["Licorne","Pégase"],
+    ["Sirène","Pirate"],["Robot","Cyborg"],["Extraterrestre","Monstre"],["Fée","Elfe"],["Ninja","Samouraï"],
+    ["Super-héros","Justicier"],["Chevalier","Mousquetaire"],["Géant","Ogre"],["Lutin","Gnome"],["Momie","Squelette"],
+    ["Baguette magique","Potion"],["Princesse","Reine"],["Trésor","Coffre"],["Château hanté","Manoir"],["Ange","Démon"],
+    ["Sorcier","Druide"],["Troll","Gobelin"],["Tapis volant","Balai volant"],["Cyclope","Minotaure"],["Phénix","Griffon"],
+    ["Hydre","Kraken"],["Centaure","Satyre"],["Gorgone","Harpie"],["Golem","Gargouille"],["Yéti","Monstre du Loch Ness"],
+    ["Génie","Lampe magique"],["Farfadet","Korrigan"],["Nécromancien","Mage noir"],["Paladin","Templier"],["Archer","Rôdeur"],
+    ["Barbare","Viking"],["Corsaire","Flibustier"],["Cowboy","Shérif"],["Gladiateur","Centurion"],["Pharaon","Sphinx"],
+    ["Mage","Enchanteur"],["Alchimiste","Apprenti sorcier"],["Grimoire","Parchemin"],["Boule de cristal","Pendule"],["Malédiction","Sortilège"],
+    ["Prophétie","Oracle"],["Épée","Bouclier"],["Armure","Heaume"],["Arc","Arbalète"],["Hache","Marteau de guerre"],
+    ["Catapulte","Trébuchet"],["Donjon","Tour"],["Pont-levis","Douves"],["Labyrinthe","Passage secret"],["Portail magique","Téléportation"],
+    ["Machine à remonter le temps","Téléporteur"],["Invisibilité","Télépathie"],["Super-vitesse","Super-force"],["Rayon laser","Sabre laser"],["Clone","Androïde"],
+    ["Intelligence artificielle","Hologramme"],["Planète inconnue","Galaxie"],["Trou noir","Météorite"],["Apocalypse","Invasion"],["Goule","Revenant"],
+    ["Poltergeist","Esprit"],["Exorciste","Chasseur de fantômes"],["Cercueil","Tombe"],["Pleine lune","Éclipse"],["Chaudron","Marmite"],
+    ["Père Noël","Petite souris"],["Lapin de Pâques","Cloche de Pâques"],["Croque-mitaine","Marchand de sable"],["Élixir","Philtre d'amour"],["Anneau magique","Amulette"],
+    ["Excalibur","Graal"],["Atlantide","Eldorado"],["Nymphe","Dryade"],["Titan","Colosse"],["Zeus","Thor"],
+    ["Hercule","Achille"],["Poséidon","Hadès"],["Chat noir","Miroir brisé"],["Fée marraine","Bonne fée"],["Château de sable","Château de glace"],
+    ["Dragon des glaces","Wyverne"],["Licorne noire","Kelpie"],["Basilic","Chimère"],["Banshee","Dame blanche"],["Elfe noir","Orc"],
+    ["Mage blanc","Grand sage"],["Sorcière de conte","Fée Carabosse"],["Pantoufle de verre","Citrouille magique"],["Haricot magique","Arbre enchanté"],["Miroir magique","Pomme empoisonnée"],
+    ["Tapis magique","Lampe à huile"],["Bottes de sept lieues","Cape d'invisibilité"],["Chevalier noir","Chevalier blanc"],["Nain forgeron","Forge enchantée"],["Dragon gardien","Trésor du dragon"],
+    ["Monstre sous le lit","Croque-mort"],["Maison en pain d'épices","Château en nuages"],["Voyante","Diseuse de bonne aventure"]
+  ],
+  "Corps & santé": [
+    ["Main","Pied"],["Œil","Oreille"],["Nez","Bouche"],["Cœur","Poumon"],["Genou","Coude"],
+    ["Cheveux","Barbe"],["Dent","Langue"],["Ongle","Doigt"],["Épaule","Cou"],["Cerveau","Crâne"],
+    ["Vaccin","Piqûre"],["Plâtre","Pansement"],["Médicament","Sirop"],["Lunettes de vue","Lentilles"],["Hoquet","Éternuement"],
+    ["Bâillement","Ronflement"],["Jambe","Bras"],["Cuisse","Mollet"],["Cheville","Poignet"],["Talon","Orteil"],
+    ["Hanche","Fesse"],["Ventre","Nombril"],["Dos","Colonne vertébrale"],["Poitrine","Côtes"],["Front","Menton"],
+    ["Joue","Mâchoire"],["Sourcil","Cil"],["Paupière","Pupille"],["Lèvre","Gencive"],["Gorge","Nuque"],
+    ["Estomac","Intestin"],["Foie","Rein"],["Sang","Veine"],["Muscle","Tendon"],["Os","Cartilage"],
+    ["Peau","Pore"],["Grain de beauté","Tache de rousseur"],["Ride","Cicatrice"],["Bouton","Point noir"],["Ampoule","Callosité"],
+    ["Bleu","Bosse"],["Fièvre","Frissons"],["Toux","Mal de gorge"],["Nausée","Vertige"],["Crampe","Courbature"],
+    ["Entorse","Fracture"],["Brûlure","Coupure"],["Migraine","Sinusite"],["Varicelle","Rougeole"],["Angine","Otite"],
+    ["Indigestion","Ballonnement"],["Diabète","Cholestérol"],["Opération","Anesthésie"],["Radiographie","IRM"],["Échographie","Prise de sang"],
+    ["Stéthoscope","Tensiomètre"],["Seringue","Perfusion"],["Béquilles","Attelle"],["Ordonnance","Carte vitale"],["Pilule","Gélule"],
+    ["Pommade","Crème solaire"],["Massage","Acupuncture"],["Régime","Jeûne"],["Sueur","Larme"],["Salive","Morve"],
+    ["Rot","Pet"],["Faim","Soif"],["Sommeil","Somnolence"],["Battement de cœur","Pouls"],["Respiration","Souffle"],
+    ["Puberté","Croissance"],["Vieillesse","Jeunesse"],["Calvitie","Cheveux blancs"],["Appareil dentaire","Dentier"],["Carie","Plombage"],
+    ["Neurone","Nerf"],["Poing","Paume"],["Aisselle","Coude replié"],["Squelette humain","Crâne humain"],["Tympan","Narine"],
+    ["Lobe","Cérumen"],["Hématome","Égratignure"],["Insuline","Antibiotique"],["Infirmerie","Cabinet dentaire"],["Défibrillateur","Bouche-à-bouche"],
+    ["Gym","Échauffement"],["Pomme d'Adam","Larynx"],["Rotule","Ménisque"],["Omoplate","Clavicule"],["Fossette","Pommette"],
+    ["Empreinte digitale","Ligne de la main"],["Cordes vocales","Glotte"],["Vessie","Pancréas"],["Hormone","Adrénaline"],["Globule rouge","Plaquette"],
+    ["Virus","Bactérie"],["Microbe","Parasite"],["Dépression","Burn-out"],["Kinésithérapie","Rééducation"],["Pansement adhésif","Compresse"],
+    ["Mouchoir","Coton-tige"],["Brosse à dents électrique","Hydropulseur"]
+  ],
+  "Vêtements": [
+    ["Jean","Pantalon"],["T-shirt","Chemise"],["Pull","Gilet"],["Manteau","Doudoune"],["Robe","Jupe"],
+    ["Baskets","Tongs"],["Bottes","Bottines"],["Pyjama","Peignoir"],["Cravate","Nœud papillon"],["Écharpe","Foulard"],
+    ["Short","Bermuda"],["Maillot de bain","Bikini"],["Costume","Smoking"],["Bonnet","Cagoule"],["Ceinture","Bretelles"],
+    ["Collier","Boucles d'oreilles"],["Bague","Alliance"],["Sac à main","Pochette"],["Chaussures","Sandales"],["Escarpins","Talons hauts"],
+    ["Mocassins","Derbies"],["Chaussons","Pantoufles"],["Sabots","Espadrilles"],["Bottes de pluie","Après-ski"],["Ciré","Coupe-vent"],
+    ["Parka","Anorak"],["Blouson","Veste en cuir"],["Blazer","Veste de costume"],["Trench","Pardessus"],["Cape","Poncho"],
+    ["Sweat à capuche","Polaire"],["Débardeur","Marcel"],["Body","Justaucorps"],["Legging","Collant"],["Jogging","Survêtement"],
+    ["Salopette","Combinaison"],["Kilt","Paréo"],["Sari","Kimono"],["Tablier","Blouse"],["Uniforme","Tenue de soirée"],
+    ["Slip","Caleçon"],["Culotte","String"],["Soutien-gorge","Brassière"],["Chaussettes hautes","Socquettes"],["Béret","Bob"],
+    ["Chapeau de paille","Sombrero"],["Haut-de-forme","Chapeau melon"],["Casque de moto","Casque de vélo"],["Moufles","Mitaines"],["Lunettes de soleil","Visière"],
+    ["Boutons de manchette","Épingle à cravate"],["Broche","Pendentif"],["Chaîne","Gourmette"],["Diadème","Serre-tête"],["Chouchou","Barrette"],
+    ["Perruque","Postiche"],["Sacoche","Besace"],["Fermeture éclair","Velcro"],["Lacets","Scratch"],["Poche","Capuche"],
+    ["Col roulé","Col en V"],["Manches courtes","Manches longues"],["Doublure","Ourlet"],["Laine","Coton"],["Soie","Satin"],
+    ["Cuir","Daim"],["Velours","Tweed"],["Lin","Lycra"],["Fourrure","Plumes"],["Paillettes","Strass"],
+    ["Rayures","Carreaux"],["Déguisement","Masque"],["Tenue de ski","Tenue de plongée"],["Tutu","Tulle"],["Corset","Bustier"],
+    ["Nuisette","Chemise de nuit"],["Toge","Tunique"],["Bleu de travail","Gilet jaune"],["Jupe plissée","Kilt écossais"],["Pull de Noël","Pull marin"],
+    ["Gilet de sécurité","Brassard"],["Bandana","Bandeau"],["Ceinture de judo","Kimono de karaté"],["Maillot de foot","Maillot de cyclisme"],["Short de bain","Caleçon de bain"],
+    ["Paréo de plage","Serviette de plage"],["Chaussures de ski","Chaussures de randonnée"],["Crampons","Pointes"],["Chaussures de danse","Chaussons de danse"],["Uniforme scolaire","Blouse d'écolier"],
+    ["Gilet en laine","Cardigan"],["Chemise hawaïenne","Chemise à carreaux"],["Veste de chasse","Veste de pêcheur"],["Parure","Bijou fantaisie"],["Montre à gousset","Montre connectée"],
+    ["Cache-oreilles","Cache-nez"],["Jupe longue","Robe longue"],["Robe de soirée","Robe de cocktail"],["Combinaison spatiale","Combinaison antiradiation"],["Pochette de costume","Mouchoir en tissu"],
+    ["Talon aiguille","Talon compensé"],["Bottes en caoutchouc","Cuissardes"]
+  ],
+  "Nature": [
+    ["Arbre","Buisson"],["Rose","Tulipe"],["Soleil couchant","Aurore"],["Arc-en-ciel","Aurore boréale"],["Nuage","Brouillard"],
+    ["Vague","Marée"],["Sable","Galet"],["Feuille","Pétale"],["Cascade","Fontaine"],["Étoile","Planète"],
+    ["Éclair","Tonnerre"],["Glacier","Iceberg"],["Sapin","Palmier"],["Cactus","Aloe vera"],["Tremblement de terre","Tsunami"],
+    ["Herbe","Mousse"],["Chêne","Hêtre"],["Bouleau","Saule"],["Pin","Cèdre"],["Érable","Platane"],
+    ["Baobab","Séquoia"],["Bambou","Roseau"],["Fougère","Lierre"],["Racine","Tronc"],["Branche","Brindille"],
+    ["Gland","Pomme de pin"],["Marguerite","Pâquerette"],["Tournesol","Coquelicot"],["Lavande","Romarin"],["Muguet","Lilas"],
+    ["Orchidée","Lys"],["Pissenlit","Trèfle"],["Ronce","Épine"],["Nénuphar","Lotus"],["Algue","Corail"],
+    ["Coquillage","Perle"],["Rocher","Caillou"],["Sommet","Crête"],["Plaine","Pampa"],["Fleuve","Ruisseau"],
+    ["Étang","Mare"],["Océan","Mer"],["Baie","Golfe"],["Delta","Estuaire"],["Côte","Rivage"],
+    ["Avalanche","Glissement de terrain"],["Ouragan","Tornade"],["Cyclone","Typhon"],["Grêle","Verglas"],["Givre","Rosée"],
+    ["Flocon","Glaçon"],["Brise","Rafale"],["Sécheresse","Inondation"],["Incendie de forêt","Éruption"],["Lave","Magma"],
+    ["Cratère","Gouffre"],["Poussière","Cendre"],["Terre","Argile"],["Boue","Vase"],["Printemps","Automne"],
+    ["Été","Hiver"],["Matin","Soir"],["Aube","Crépuscule"],["Voie lactée","Constellation"],["Comète","Étoile filante"],
+    ["Ciel","Horizon"],["Fruit","Graine"],["Bourgeon","Fleur"],["Pollen","Nectar"],["Sève","Résine"],
+    ["Champ de blé","Champ de maïs"],["Rizière","Plantation"],["Taïga","Toundra"],["Banquise","Pôle Nord"],["Stalactite","Stalagmite"],
+    ["Diamant","Rubis"],["Or","Argent"],["Fer","Cuivre"],["Pétrole","Charbon"],["Marbre","Granit"],
+    ["Émeraude","Saphir"],["Forêt tropicale","Forêt de pins"],["Source","Puits"],["Île déserte","Atoll"],["Clairière","Sous-bois"],
+    ["Cerisier","Pommier"],["Olivier","Figuier"],["Chêne-liège","Châtaignier"],["Peuplier","Tilleul"],["Magnolia","Camélia"],
+    ["Jasmin","Chèvrefeuille"],["Pivoine","Dahlia"],["Violette","Myosotis"],["Bleuet","Lin bleu"],["Gui","Houx"],
+    ["Mousse marine","Plancton"],["Éponge de mer","Anémone de mer"],["Marée basse","Marée haute"],["Lit de rivière","Berge"],["Torrent","Rapide"],
+    ["Col de montagne","Pic"],["Arc électrique","Feu follet"]
+  ],
+  "Musique & culture": [
+    ["Rock","Métal"],["Rap","Slam"],["Opéra","Comédie musicale"],["Orchestre","Fanfare"],["Trompette","Saxophone"],
+    ["Flûte","Harmonica"],["Micro","Haut-parleur"],["Film d'horreur","Thriller"],["Dessin animé","Manga"],["Série","Feuilleton"],
+    ["Roman","Bande dessinée"],["Poème","Chanson"],["Sculpture","Statue"],["Tableau","Affiche"],["Podcast","Radio"],
+    ["Youtubeur","Influenceur"],["Tatouage","Piercing"],["Magie","Hypnose"],["Jazz","Blues"],["Reggae","Ska"],
+    ["Pop","Disco"],["Techno","House"],["Classique","Baroque"],["Country","Folk"],["Punk","Grunge"],
+    ["Funk","Soul"],["Gospel","Chorale"],["Accordéon","Orgue"],["Violoncelle","Contrebasse"],["Harpe","Lyre"],
+    ["Banjo","Ukulélé"],["Tambour","Tambourin"],["Xylophone","Triangle"],["Clarinette","Hautbois"],["Cornemuse","Biniou"],
+    ["Synthétiseur","Boîte à rythmes"],["Platine","Vinyle"],["CD","Cassette"],["Clip vidéo","Live"],["Album","Single"],
+    ["Refrain","Couplet"],["Note","Partition"],["Solfège","Conservatoire"],["Tube","Reprise"],["Choriste","Soliste"],
+    ["Groupe","Duo"],["Tournée","Première partie"],["Ballet","Spectacle"],["Pièce de théâtre","One-man-show"],["Stand-up","Sketch"],
+    ["Marionnettes","Guignol"],["Western","Film de cape et d'épée"],["Science-fiction","Fantasy"],["Comédie","Drame"],["Comédie romantique","Film à l'eau de rose"],
+    ["Documentaire","Reportage"],["Court-métrage","Long-métrage"],["Oscar","César"],["Tapis rouge","Avant-première"],["Bande-annonce","Générique"],
+    ["Effets spéciaux","Doublage"],["Sous-titres","Version originale"],["Télé-réalité","Jeu télévisé"],["Journal télévisé","Météo"],["Émission","Talk-show"],
+    ["Conte","Fable"],["Légende","Mythe"],["Polar","Enquête"],["Biographie","Autobiographie"],["Dictionnaire","Encyclopédie"],
+    ["Journal","Gazette"],["Exposition","Vernissage"],["Graffiti","Street art"],["Fresque","Vitrail"],["Mème","GIF"],
+    ["Emoji","Sticker"],["Blog","Vlog"],["Hashtag","Tendance"],["Console","PC gamer"],["Karaoké en voiture","Chanson sous la douche"],
+    ["Hymne national","Chant de supporters"],["Berceuse","Comptine"],["Slow","Valse"],["Guitare électrique","Basse"],["Batterie électronique","Pad"],
+    ["Flûte à bec","Flûte traversière"],["Cymbale","Gong"],["Maracas","Castagnettes"],["Opérette","Vaudeville"],["Quatuor","Trio"],
+    ["Récital","Audition"],["Chef de chœur","Maître de chapelle"],["Bande originale","Musique de film"],["Disque d'or","Disque de platine"],["Clé de sol","Clé de fa"],
+    ["Métronome","Diapason"],["Fanfare municipale","Batucada"],["Comédie française","Théâtre de rue"],["Prix Nobel","Prix Goncourt"],["Bibliothèque municipale","Médiathèque"],
+    ["Ciné-club","Cinéma en plein air"],["Opéra rock","Concert symphonique"]
+  ]
+};
+
+const STORE_KEY = "suparespion.v1";
+const $ = id => document.getElementById(id);
+
+const state = {
+  players: [],          // { name, score }
+  spies: 1,
+  mode: "none",         // "none" | "close"
+  timer: 0,
+  cats: Object.keys(DICT),
+  recent: []            // mots déjà joués récemment
+};
+let game = null;
+let timerInterval = null;
+
+function load() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORE_KEY));
+    if (saved) Object.assign(state, saved);
+  } catch (e) {}
+  state.cats = state.cats.filter(c => DICT[c]);
+  if (!state.cats.length) state.cats = Object.keys(DICT);
+}
+function save() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {}
+}
+
+function show(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.toggle("active", s.id === id));
+  window.scrollTo(0, 0);
+}
+
+function esc(s) {
+  return s.replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+}
+
+function shuffle(a) {
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function maxSpies() {
+  return Math.max(1, Math.floor((state.players.length - 1) / 2));
+}
+
+// ---------- Configuration ----------
+
+function renderSetup() {
+  const list = $("player-list");
+  if (!state.players.length) {
+    list.innerHTML = '<li class="empty">Ajoute au moins 3 joueurs</li>';
+  } else {
+    list.innerHTML = state.players.map((p, i) => `
+      <li class="player">
+        <span class="name">${esc(p.name)}<span class="score">${p.score} pt${p.score > 1 ? "s" : ""}</span></span>
+        <span>
+          <button data-up="${i}" ${i === 0 ? "disabled" : ""}>▲</button>
+          <button data-del="${i}">✕</button>
+        </span>
+      </li>`).join("");
+  }
+
+  state.spies = Math.min(state.spies, maxSpies());
+  $("spy-count").textContent = state.spies;
+  $("spy-minus").disabled = state.spies <= 1;
+  $("spy-plus").disabled = state.spies >= maxSpies();
+
+  document.querySelectorAll("#mode-seg button").forEach(b => b.classList.toggle("on", b.dataset.mode === state.mode));
+  $("mode-help").textContent = state.mode === "none"
+    ? "L'espion sait qu'il est espion"
+    : "L'espion a un mot proche et ne sait pas qu'il est espion !";
+  document.querySelectorAll("#timer-seg button").forEach(b => b.classList.toggle("on", +b.dataset.t === state.timer));
+
+  $("cat-chips").innerHTML = Object.keys(DICT).map(c =>
+    `<button class="chip ${state.cats.includes(c) ? "on" : ""}" data-cat="${esc(c)}">${esc(c)}</button>`).join("");
+
+  $("start-btn").disabled = state.players.length < 3;
+  save();
+}
+
+$("add-form").addEventListener("submit", e => {
+  e.preventDefault();
+  const input = $("name-input");
+  const name = input.value.trim();
+  if (name && !state.players.some(p => p.name.toLowerCase() === name.toLowerCase())) {
+    state.players.push({ name, score: 0 });
+    renderSetup();
+  }
+  input.value = "";
+  input.focus();
+});
+
+$("player-list").addEventListener("click", e => {
+  const del = e.target.closest("[data-del]");
+  const up = e.target.closest("[data-up]");
+  if (del) state.players.splice(+del.dataset.del, 1);
+  if (up) {
+    const i = +up.dataset.up;
+    [state.players[i - 1], state.players[i]] = [state.players[i], state.players[i - 1]];
+  }
+  if (del || up) renderSetup();
+});
+
+$("spy-minus").onclick = () => { state.spies--; renderSetup(); };
+$("spy-plus").onclick = () => { state.spies++; renderSetup(); };
+$("mode-seg").onclick = e => { const b = e.target.closest("button"); if (b) { state.mode = b.dataset.mode; renderSetup(); } };
+$("timer-seg").onclick = e => { const b = e.target.closest("button"); if (b) { state.timer = +b.dataset.t; renderSetup(); } };
+$("cat-chips").onclick = e => {
+  const b = e.target.closest("[data-cat]");
+  if (!b) return;
+  const c = b.dataset.cat;
+  if (state.cats.includes(c)) {
+    if (state.cats.length > 1) state.cats = state.cats.filter(x => x !== c);
+  } else {
+    state.cats.push(c);
+  }
+  renderSetup();
+};
+$("reset-scores").onclick = () => { state.players.forEach(p => p.score = 0); renderSetup(); };
+
+// ---------- Partie ----------
+
+function pickPair() {
+  const pool = state.cats.flatMap(c => DICT[c]);
+  let fresh = pool.filter(p => !state.recent.includes(p[0]));
+  if (!fresh.length) { state.recent = []; fresh = pool; }
+  const pair = fresh[Math.floor(Math.random() * fresh.length)].slice();
+  // On inverse parfois la paire pour varier
+  if (Math.random() < 0.5) pair.reverse();
+  state.recent.push(pair[0], pair[1]);
+  state.recent = state.recent.slice(-80);
+  return pair;
+}
+
+function startGame() {
+  const [word, spyWord] = pickPair();
+  const spyIdx = shuffle(state.players.map((_, i) => i)).slice(0, state.spies);
+  game = {
+    word, spyWord,
+    roles: state.players.map((p, i) => ({ name: p.name, spy: spyIdx.includes(i), out: false })),
+    dealIdx: 0
+  };
+  save();
+  showDeal();
+}
+
+function showDeal() {
+  const p = game.roles[game.dealIdx];
+  $("deal-progress").textContent = `Joueur ${game.dealIdx + 1} / ${game.roles.length}`;
+  $("deal-name").textContent = p.name;
+  const box = $("reveal-box");
+  box.className = "reveal-box";
+  box.innerHTML = '<div class="hint">Appuie ici pour voir ton mot<br>(sans que les autres regardent !)</div>';
+  $("deal-next").style.visibility = "hidden";
+  $("deal-next").textContent = game.dealIdx === game.roles.length - 1
+    ? "J'ai retenu, commencer !" : "J'ai retenu, cacher et passer";
+  show("s-deal");
+}
+
+$("reveal-box").onclick = () => {
+  const box = $("reveal-box");
+  if (box.classList.contains("shown")) return;
+  const p = game.roles[game.dealIdx];
+  box.classList.add("shown");
+  if (p.spy && state.mode === "none") {
+    box.classList.add("spy");
+    box.innerHTML = `<div class="spy-label">ESPION</div>
+      <div class="hint">Tu n'as pas de mot. Écoute les autres et devine le leur !</div>`;
+  } else {
+    const w = p.spy ? game.spyWord : game.word;
+    box.innerHTML = `<div class="hint">Ton mot est</div><div class="word">${esc(w)}</div>`;
+  }
+  $("deal-next").style.visibility = "visible";
+};
+
+$("deal-next").onclick = () => {
+  game.dealIdx++;
+  if (game.dealIdx < game.roles.length) showDeal();
+  else startTalk();
+};
+
+// ---------- Discussion ----------
+
+function startTalk() {
+  // En mode "sans mot", on évite que l'espion commence
+  const alive = game.roles.filter(r => !r.out);
+  const candidates = state.mode === "none" ? alive.filter(r => !r.spy) : alive;
+  $("first-player").textContent = candidates[Math.floor(Math.random() * candidates.length)].name;
+  stopTimer();
+  if (state.timer) {
+    let left = state.timer, paused = false;
+    const t = $("timer"), btn = $("timer-toggle");
+    const draw = () => {
+      t.textContent = `${Math.floor(left / 60)}:${String(left % 60).padStart(2, "0")}`;
+      t.classList.toggle("low", left <= 30);
+    };
+    draw();
+    btn.style.display = "";
+    btn.textContent = "Pause";
+    btn.onclick = () => { paused = !paused; btn.textContent = paused ? "Reprendre" : "Pause"; };
+    timerInterval = setInterval(() => {
+      if (paused || left <= 0) return;
+      left--;
+      draw();
+      if (left === 0 && navigator.vibrate) navigator.vibrate([300, 100, 300]);
+    }, 1000);
+  } else {
+    $("timer").textContent = "";
+    $("timer-toggle").style.display = "none";
+  }
+  show("s-talk");
+}
+
+function stopTimer() {
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = null;
+}
+
+$("go-vote").onclick = () => { stopTimer(); showVote(); };
+
+// ---------- Vote ----------
+
+function showVote() {
+  $("vote-grid").innerHTML = game.roles.map((r, i) =>
+    `<button data-vote="${i}" class="${r.out ? "out" : ""}" ${r.out ? "disabled" : ""}>${esc(r.name)}</button>`).join("");
+  show("s-vote");
+}
+
+$("vote-grid").onclick = e => {
+  const b = e.target.closest("[data-vote]");
+  if (!b) return;
+  const r = game.roles[+b.dataset.vote];
+  r.out = true;
+
+  const spiesLeft = game.roles.filter(x => x.spy && !x.out).length;
+  const civsLeft = game.roles.filter(x => !x.spy && !x.out).length;
+
+  $("elim-name").textContent = r.name;
+  const res = $("elim-result");
+  if (r.spy) {
+    res.textContent = "était un ESPION !";
+    res.className = "result-title ok";
+    $("elim-hint").textContent = state.mode === "none"
+      ? "Dernière chance : l'espion peut tenter de deviner le mot à voix haute. S'il trouve, les espions gagnent !"
+      : "";
+  } else {
+    res.textContent = "n'était pas l'espion…";
+    res.className = "result-title spy";
+    $("elim-hint").textContent = spiesLeft >= civsLeft ? "" : "La discussion reprend !";
+  }
+
+  let outcome = null;
+  if (spiesLeft === 0) outcome = "civils";
+  else if (spiesLeft >= civsLeft) outcome = "espions";
+
+  const next = $("elim-next");
+  next.className = "primary big";
+  if (outcome === "civils" && state.mode === "none") {
+    // L'espion démasqué peut voler la victoire en devinant le mot
+    next.textContent = "L'espion n'a pas trouvé → Civils gagnent";
+    next.onclick = () => endGame("civils");
+    $("elim-extra")?.remove();
+    const steal = document.createElement("button");
+    steal.id = "elim-extra";
+    steal.className = "danger big";
+    steal.textContent = "L'espion a deviné le mot → Espions gagnent";
+    steal.onclick = () => endGame("espions");
+    next.after(steal);
+  } else {
+    $("elim-extra")?.remove();
+    if (outcome) {
+      next.textContent = "Voir le résultat";
+      next.onclick = () => endGame(outcome);
+    } else {
+      next.textContent = "Continuer la discussion";
+      next.onclick = () => startTalk();
+    }
+  }
+  show("s-elim");
+};
+
+$("reveal-all").onclick = () => endGame("espions");
+
+// ---------- Fin ----------
+
+function endGame(winner) {
+  $("elim-extra")?.remove();
+  const spiesWin = winner === "espions";
+  game.roles.forEach((r, i) => {
+    if (r.spy === spiesWin) state.players[i].score += r.spy ? 2 : 1;
+  });
+
+  const title = $("end-title");
+  title.textContent = spiesWin
+    ? (state.spies > 1 ? "Les espions gagnent !" : "L'espion gagne !")
+    : "Les civils gagnent !";
+  title.className = "result-title " + (spiesWin ? "spy" : "ok");
+  $("end-word").textContent = game.word;
+  $("end-spyword-wrap").style.display = state.mode === "close" ? "" : "none";
+  $("end-spyword").textContent = game.spyWord;
+
+  $("end-list").innerHTML = game.roles.map((r, i) => `
+    <li class="player">
+      <span class="name">${esc(r.name)}${r.spy ? '<span class="tag">Espion</span>' : '<span class="tag civ">Civil</span>'}</span>
+      <span class="score">${state.players[i].score} pt${state.players[i].score > 1 ? "s" : ""}</span>
+    </li>`).join("");
+  save();
+  show("s-end");
+}
+
+$("replay").onclick = startGame;
+$("back-setup").onclick = () => { renderSetup(); show("s-setup"); };
+$("start-btn").onclick = startGame;
+
+load();
+renderSetup();
+</script>
+</body>
+</html>
